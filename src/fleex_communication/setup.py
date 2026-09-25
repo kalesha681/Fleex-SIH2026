@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'fleex_heartbeat_publisher = fleex_communication.heartbeat_publisher:main'
+            'fleex_heartbeat_publisher = fleex_communication.heartbeat_publisher:main',
+            'fleex_heartbeat_monitor = fleex_communication.heartbeat_monitor:main'
         ],
     },
 )

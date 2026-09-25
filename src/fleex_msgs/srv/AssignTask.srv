@@ -1,0 +1,7 @@
+# Request
+string robot_id
+fleex_msgs/Task task
+---
+# Response
+bool accepted
+string message

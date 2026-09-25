@@ -1,0 +1,8 @@
+# Request
+string robot_id
+string zone_id
+---
+# Response
+bool granted
+string message
+fleex_msgs/Lease lease

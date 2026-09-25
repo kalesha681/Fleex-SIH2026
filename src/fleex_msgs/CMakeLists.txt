@@ -12,6 +12,13 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Heartbeat.msg"
+  "msg/RobotState.msg"
+  "msg/Task.msg"
+  "msg/TaskBid.msg"
+  "msg/ZoneState.msg"
+  "msg/Lease.msg"
+  "srv/RequestZone.srv"
+  "srv/AssignTask.srv"
   DEPENDENCIES builtin_interfaces
 )
 
