@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'fleex_task_generator = fleex_coordination.task_generator:main'
+            'fleex_task_generator = fleex_coordination.task_generator:main',
+            'fleex_task_bidder = fleex_coordination.task_bidder:main'
         ],
     },
 )
