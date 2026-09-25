@@ -22,7 +22,7 @@ def generate_launch_description():
         
         # 1. Generate URDF synchronously
         urdf_file = f"/tmp/{name}.urdf"
-        xacro_cmd = f"xacro /home/cp-lab/sih_fleex_workspace/simulation/urdf/amr1.xacro sim_gz:=true robot_namespace:={ns} > {urdf_file}"
+        xacro_cmd = f"xacro /home/cp-lab/sih_fleex_workspace/simulation/urdf/amr1.xacro sim_gz:=true two_d_lidar_enabled:=true robot_namespace:={ns} > {urdf_file}"
         os.system(xacro_cmd)
 
         # 2. Spawn robot
@@ -45,6 +45,7 @@ def generate_launch_description():
             f'/model/{name}/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
             f'/model/{name}/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
             f'/model/{name}/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
+            f'/model/{name}/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
         ])
         
         # Remap Gazebo topics to ROS namespaces
@@ -52,6 +53,7 @@ def generate_launch_description():
             (f'/model/{name}/cmd_vel', f'/{name}/cmd_vel'),
             (f'/model/{name}/odom', f'/{name}/odom'),
             (f'/model/{name}/tf', f'/{name}/tf'),
+            (f'/model/{name}/scan', f'/{name}/scan'),
         ])
 
     # 4. Bridge node
