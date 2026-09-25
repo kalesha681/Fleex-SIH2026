@@ -15,26 +15,18 @@ class TaskBidder(Node):
         self.bid_collection_window = self.get_parameter('bid_collection_window').value
 
         # Publishers and Subscribers
-        self.task_sub = self.create_subscription(
-            Task,
-            '/fleex/tasks',
-            self.task_callback,
-            10
-        )
+        self.task_sub = self.create_subscription(Task, '/fleex/tasks', self.task_callback, 10)
         self.task_pub = self.create_publisher(Task, '/fleex/tasks', 10)
         
-        self.bid_sub = self.create_subscription(
-            TaskBid,
-            '/fleex/task_bids',
-            self.bid_callback,
-            10
-        )
+        self.bid_sub = self.create_subscription(TaskBid, '/fleex/task_bids', self.bid_callback, 10)
         self.bid_pub = self.create_publisher(TaskBid, '/fleex/task_bids', 10)
 
         # Internal state tracking
         self.processed_tasks = set()
-        self.assigned_tasks = set()
         self.completed_auctions = {}  # { task_id: winner_id }
+        
+        # Track known task states logically
+        self.local_tasks = {} # { task_id: { 'state': int, 'msg': Task, 'timer': Timer } }
         
         # Structure: { task_id: { 'bids': { robot_id: bid_value }, 'timer': Timer, 'msg': Task } }
         self.active_auctions = {}
@@ -44,28 +36,47 @@ class TaskBidder(Node):
 
     def task_callback(self, msg):
         # ----------------------------------------------------
-        # OWNERSHIP COMMIT VALIDATION (PHASE 7.3)
+        # TASK LIFECYCLE & OWNERSHIP VALIDATION (PHASE 7.4)
         # ----------------------------------------------------
-        if msg.state == Task.STATE_ASSIGNED:
-            # 1. Idempotency Check
-            if msg.task_id in self.assigned_tasks:
-                return
+        if msg.state in [Task.STATE_ASSIGNED, Task.STATE_IN_PROGRESS, Task.STATE_COMPLETED, Task.STATE_FAILED]:
+            
+            # Idempotency & State Machine rules
+            if msg.task_id in self.local_tasks:
+                current_state = self.local_tasks[msg.task_id]['state']
                 
-            # 2. Auction Identity Validation
+                if msg.state == current_state:
+                    return # Idempotent receipt, ignore
+                    
+                # Validate state transition rules (No backward transitions allowed)
+                # Exception: FAILED is an end state, but numerically it is 4.
+                if msg.state < current_state:
+                    self.get_logger().warn(f"[{msg.task_id}] Rejecting invalid backward transition: {current_state} -> {msg.state}.")
+                    return
+                
+                if current_state in [Task.STATE_COMPLETED, Task.STATE_FAILED]:
+                    self.get_logger().warn(f"[{msg.task_id}] Rejecting mutation on terminal state: {current_state} -> {msg.state}.")
+                    return
+
+            # Auction Validation Check
             if msg.task_id not in self.completed_auctions:
-                self.get_logger().warn(f"[{msg.task_id}] Received ownership commit before local auction closure or for unknown auction. Dropping.")
+                self.get_logger().warn(f"[{msg.task_id}] Received ownership/lifecycle commit for unknown auction. Dropping.")
                 return
                 
-            # 3. Deterministic Winner Validation
             expected_winner = self.completed_auctions[msg.task_id]
             if msg.owner_id != expected_winner:
-                self.get_logger().error(f"[{msg.task_id}] INVALID OWNERSHIP MUTATION! {msg.owner_id} claimed task, but {expected_winner} won. Rejecting.")
+                self.get_logger().error(f"[{msg.task_id}] INVALID MUTATION! {msg.owner_id} modified task, but {expected_winner} owns it. Rejecting.")
                 return
                 
-            # Valid Commit Accepted
-            self.assigned_tasks.add(msg.task_id)
+            # Valid Transition Accepted
+            if msg.task_id not in self.local_tasks:
+                self.local_tasks[msg.task_id] = {'state': msg.state, 'msg': msg, 'timer': None}
+            else:
+                self.local_tasks[msg.task_id]['state'] = msg.state
+                self.local_tasks[msg.task_id]['msg'] = msg
+                
             if msg.owner_id != self.robot_id:
-                self.get_logger().info(f"[{msg.task_id}] Verified and accepted ownership commit by {msg.owner_id}.")
+                state_names = {1: "ASSIGNED", 2: "IN_PROGRESS", 3: "COMPLETED", 4: "FAILED"}
+                self.get_logger().info(f"[{msg.task_id}] Observed transition to {state_names.get(msg.state)} by owner {msg.owner_id}.")
             return
 
 
@@ -80,7 +91,6 @@ class TaskBidder(Node):
         if msg.task_id in self.processed_tasks or msg.task_id in self.active_auctions:
             return
 
-        # ELIGIBILITY RULE 3: Required basic information exists
         if not msg.task_id or not msg.pickup_location:
             self.get_logger().warn("Received unassigned task with missing core data.")
             return
@@ -101,7 +111,7 @@ class TaskBidder(Node):
         self.active_auctions[msg.task_id] = {
             'bids': {self.robot_id: bid_value},
             'timer': timer,
-            'msg': msg  # Store the original task to mutate later if we win
+            'msg': msg 
         }
         self.processed_tasks.add(msg.task_id)
 
@@ -115,21 +125,17 @@ class TaskBidder(Node):
         self.get_logger().info(f"[{msg.task_id}] Auction Opened. Published local bid: {bid_value:.3f}")
 
     def bid_callback(self, msg):
-        # STALE/UNKNOWN BID HANDLING
         if msg.task_id not in self.active_auctions:
             return
             
         auction = self.active_auctions[msg.task_id]
         
-        # DUPLICATE BID HANDLING
         if msg.robot_id in auction['bids']:
             return
             
         auction['bids'][msg.robot_id] = msg.bid_value
-        self.get_logger().debug(f"[{msg.task_id}] Received bid {msg.bid_value:.3f} from {msg.robot_id}")
 
     def auction_timeout(self, task_id):
-        # Retrieve and close the auction
         if task_id not in self.active_auctions:
             return
             
@@ -144,17 +150,12 @@ class TaskBidder(Node):
         # WINNER SELECTION ALGORITHM
         sorted_bids = sorted(bids.items(), key=lambda item: (item[1], item[0]))
         winner_id, winning_bid = sorted_bids[0]
-        
-        # Store for future verification of state mutations
         self.completed_auctions[task_id] = winner_id
 
-        self.get_logger().info(
-            f"[{task_id}] Auction Closed. Winner determined: {winner_id} with bid {winning_bid:.3f} "
-            f"(Total bids received: {len(bids)})"
-        )
+        self.get_logger().info(f"[{task_id}] Auction Closed. Winner determined: {winner_id} with bid {winning_bid:.3f}")
 
         # ----------------------------------------------------
-        # OWNERSHIP MUTATION COMMIT (PHASE 7.3)
+        # OWNERSHIP MUTATION COMMIT
         # ----------------------------------------------------
         if winner_id == self.robot_id:
             self.get_logger().info(f"[{task_id}] I WON! Mutating state and committing ownership to network.")
@@ -163,11 +164,54 @@ class TaskBidder(Node):
             task_msg.owner_id = self.robot_id
             task_msg.state = Task.STATE_ASSIGNED
             
-            # Record locally immediately to guarantee idempotency on echo
-            self.assigned_tasks.add(task_id)
-            
-            # Publish mutated state to the distributed network
+            # Record locally immediately
+            self.local_tasks[task_id] = {'state': Task.STATE_ASSIGNED, 'msg': task_msg, 'timer': None}
             self.task_pub.publish(task_msg)
+            
+            # Kick off simulated execution lifecycle
+            timer = self.create_timer(3.0, lambda tid=task_id: self.simulate_in_progress(tid))
+            self.local_tasks[task_id]['timer'] = timer
+            
+    def simulate_in_progress(self, task_id):
+        if task_id not in self.local_tasks:
+            return
+            
+        task_data = self.local_tasks[task_id]
+        if task_data['timer']:
+            task_data['timer'].cancel()
+            
+        if task_data['state'] != Task.STATE_ASSIGNED:
+            return
+            
+        task_msg = task_data['msg']
+        task_msg.state = Task.STATE_IN_PROGRESS
+        task_data['state'] = Task.STATE_IN_PROGRESS
+        
+        self.get_logger().info(f"[{task_id}] Simulated execution: Transitioning to IN_PROGRESS.")
+        self.task_pub.publish(task_msg)
+        
+        # Proceed to completed
+        timer = self.create_timer(3.0, lambda tid=task_id: self.simulate_completed(tid))
+        task_data['timer'] = timer
+        
+    def simulate_completed(self, task_id):
+        if task_id not in self.local_tasks:
+            return
+            
+        task_data = self.local_tasks[task_id]
+        if task_data['timer']:
+            task_data['timer'].cancel()
+            task_data['timer'] = None
+            
+        if task_data['state'] != Task.STATE_IN_PROGRESS:
+            return
+            
+        task_msg = task_data['msg']
+        task_msg.state = Task.STATE_COMPLETED
+        task_data['state'] = Task.STATE_COMPLETED
+        
+        self.get_logger().info(f"[{task_id}] Simulated execution: Transitioning to COMPLETED.")
+        self.task_pub.publish(task_msg)
 
 
 def main(args=None):
