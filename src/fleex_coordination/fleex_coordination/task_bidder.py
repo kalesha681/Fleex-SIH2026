@@ -21,24 +21,57 @@ class TaskBidder(Node):
             self.task_callback,
             10
         )
+        self.task_pub = self.create_publisher(Task, '/fleex/tasks', 10)
+        
         self.bid_sub = self.create_subscription(
             TaskBid,
             '/fleex/task_bids',
             self.bid_callback,
             10
         )
-        self.publisher_ = self.create_publisher(TaskBid, '/fleex/task_bids', 10)
+        self.bid_pub = self.create_publisher(TaskBid, '/fleex/task_bids', 10)
 
         # Internal state tracking
         self.processed_tasks = set()
+        self.assigned_tasks = set()
+        self.completed_auctions = {}  # { task_id: winner_id }
         
-        # Structure: { task_id: { 'bids': { robot_id: bid_value }, 'timer': Timer } }
+        # Structure: { task_id: { 'bids': { robot_id: bid_value }, 'timer': Timer, 'msg': Task } }
         self.active_auctions = {}
 
         self.get_logger().info(f'Task Bidder initialized for robot: {self.robot_id}')
         self.get_logger().info(f'Auction window set to: {self.bid_collection_window}s')
 
     def task_callback(self, msg):
+        # ----------------------------------------------------
+        # OWNERSHIP COMMIT VALIDATION (PHASE 7.3)
+        # ----------------------------------------------------
+        if msg.state == Task.STATE_ASSIGNED:
+            # 1. Idempotency Check
+            if msg.task_id in self.assigned_tasks:
+                return
+                
+            # 2. Auction Identity Validation
+            if msg.task_id not in self.completed_auctions:
+                self.get_logger().warn(f"[{msg.task_id}] Received ownership commit before local auction closure or for unknown auction. Dropping.")
+                return
+                
+            # 3. Deterministic Winner Validation
+            expected_winner = self.completed_auctions[msg.task_id]
+            if msg.owner_id != expected_winner:
+                self.get_logger().error(f"[{msg.task_id}] INVALID OWNERSHIP MUTATION! {msg.owner_id} claimed task, but {expected_winner} won. Rejecting.")
+                return
+                
+            # Valid Commit Accepted
+            self.assigned_tasks.add(msg.task_id)
+            if msg.owner_id != self.robot_id:
+                self.get_logger().info(f"[{msg.task_id}] Verified and accepted ownership commit by {msg.owner_id}.")
+            return
+
+
+        # ----------------------------------------------------
+        # UNASSIGNED TASK AUCTION INITIATION
+        # ----------------------------------------------------
         # ELIGIBILITY RULE 1 & 2: Task must be unassigned and have no owner
         if msg.state != Task.STATE_UNASSIGNED or msg.owner_id != "":
             return
@@ -66,8 +99,9 @@ class TaskBidder(Node):
             lambda tid=msg.task_id: self.auction_timeout(tid)
         )
         self.active_auctions[msg.task_id] = {
-            'bids': {self.robot_id: bid_value}, # Immediately insert our own bid
-            'timer': timer
+            'bids': {self.robot_id: bid_value},
+            'timer': timer,
+            'msg': msg  # Store the original task to mutate later if we win
         }
         self.processed_tasks.add(msg.task_id)
 
@@ -77,22 +111,17 @@ class TaskBidder(Node):
         bid_msg.robot_id = self.robot_id
         bid_msg.bid_value = bid_value
 
-        self.publisher_.publish(bid_msg)
-        
-        self.get_logger().info(
-            f"[{msg.task_id}] Auction Opened. Published local bid: {bid_value:.3f}"
-        )
+        self.bid_pub.publish(bid_msg)
+        self.get_logger().info(f"[{msg.task_id}] Auction Opened. Published local bid: {bid_value:.3f}")
 
     def bid_callback(self, msg):
-        # STALE/UNKNOWN BID HANDLING:
-        # If the task_id is not in our active auctions, the window has closed or it's unknown.
+        # STALE/UNKNOWN BID HANDLING
         if msg.task_id not in self.active_auctions:
             return
             
         auction = self.active_auctions[msg.task_id]
         
-        # DUPLICATE BID HANDLING:
-        # We process strictly the first bid received from a peer and ignore subsequent duplicates.
+        # DUPLICATE BID HANDLING
         if msg.robot_id in auction['bids']:
             return
             
@@ -105,8 +134,6 @@ class TaskBidder(Node):
             return
             
         auction = self.active_auctions.pop(task_id)
-        
-        # Clean up the ROS timer so it doesn't fire again
         auction['timer'].cancel()
         
         bids = auction['bids']
@@ -115,16 +142,32 @@ class TaskBidder(Node):
             return
 
         # WINNER SELECTION ALGORITHM
-        # Lowest bid wins.
-        # Tie-breaker: If bids are identical, lowest robot_id string wins deterministically.
-        # Sorting by (bid_value, robot_id) inherently satisfies this perfectly.
         sorted_bids = sorted(bids.items(), key=lambda item: (item[1], item[0]))
         winner_id, winning_bid = sorted_bids[0]
+        
+        # Store for future verification of state mutations
+        self.completed_auctions[task_id] = winner_id
 
         self.get_logger().info(
             f"[{task_id}] Auction Closed. Winner determined: {winner_id} with bid {winning_bid:.3f} "
             f"(Total bids received: {len(bids)})"
         )
+
+        # ----------------------------------------------------
+        # OWNERSHIP MUTATION COMMIT (PHASE 7.3)
+        # ----------------------------------------------------
+        if winner_id == self.robot_id:
+            self.get_logger().info(f"[{task_id}] I WON! Mutating state and committing ownership to network.")
+            
+            task_msg = auction['msg']
+            task_msg.owner_id = self.robot_id
+            task_msg.state = Task.STATE_ASSIGNED
+            
+            # Record locally immediately to guarantee idempotency on echo
+            self.assigned_tasks.add(task_id)
+            
+            # Publish mutated state to the distributed network
+            self.task_pub.publish(task_msg)
 
 
 def main(args=None):
