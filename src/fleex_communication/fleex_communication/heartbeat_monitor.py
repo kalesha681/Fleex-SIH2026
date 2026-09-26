@@ -1,7 +1,8 @@
 import rclpy
 from rclpy.node import Node
 from fleex_msgs.msg import Heartbeat
-
+from std_msgs.msg import String
+import json
 class HeartbeatMonitor(Node):
     def __init__(self):
         super().__init__('fleex_heartbeat_monitor')
@@ -18,6 +19,13 @@ class HeartbeatMonitor(Node):
             Heartbeat,
             'heartbeat',
             self.heartbeat_callback,
+            10
+        )
+
+        # Publisher for peer liveness state changes
+        self.liveness_pub_ = self.create_publisher(
+            String,
+            '/fleex/peer_liveness',
             10
         )
 
@@ -47,6 +55,7 @@ class HeartbeatMonitor(Node):
                 'last_recv_time': now
             }
             self.get_logger().info(f'[STATE TRANSITION] {robot_id} is now ALIVE (New Peer Detected).')
+            self._publish_liveness(robot_id, 'ALIVE')
         else:
             peer = self.peer_states[robot_id]
             current_state = peer['state']
@@ -62,6 +71,7 @@ class HeartbeatMonitor(Node):
                 peer['state'] = 'ALIVE'
                 self.get_logger().info(f'[STATE TRANSITION] {robot_id} has RECOVERED (Heartbeats resumed).')
                 self.get_logger().info(f'[STATE TRANSITION] {robot_id} is now ALIVE.')
+                self._publish_liveness(robot_id, 'ALIVE')
 
             # Update tracking information
             peer['last_seq'] = seq
@@ -78,6 +88,12 @@ class HeartbeatMonitor(Node):
                     self.get_logger().warn(
                         f'[STATE TRANSITION] {robot_id} is now TIMED_OUT (No heartbeat for {time_since_last_msg:.2f}s).'
                     )
+                    self._publish_liveness(robot_id, 'TIMED_OUT')
+
+    def _publish_liveness(self, robot_id, status):
+        msg = String()
+        msg.data = json.dumps({'robot_id': robot_id, 'status': status})
+        self.liveness_pub_.publish(msg)
 
 
 def main(args=None):

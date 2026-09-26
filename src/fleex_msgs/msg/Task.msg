@@ -15,3 +15,4 @@ uint8 state
 
 # The ID of the robot assigned to this task (empty if unassigned)
 string owner_id
+uint32 epoch
