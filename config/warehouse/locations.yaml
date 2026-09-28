@@ -1,0 +1,42 @@
+locations:
+  shelf_A_01:
+    model_id: "aws_robomaker_warehouse_ShelfF_01_001"
+    pose: {x: -5.795, y: -0.956, yaw: 0.0}
+    approach: {x: -4.0, y: -0.956, yaw: 3.14159}
+    frame: "map"
+
+  shelf_A_02:
+    model_id: "aws_robomaker_warehouse_ShelfE_01_001"
+    pose: {x: 4.731, y: 0.579, yaw: 0.0}
+    approach: {x: 3.0, y: 0.579, yaw: 0.0}
+    frame: "map"
+
+  shelf_B_01:
+    model_id: "aws_robomaker_warehouse_ShelfD_01_001"
+    pose: {x: 4.731, y: -1.242, yaw: 0.0}
+    approach: {x: 3.0, y: -1.242, yaw: 0.0}
+    frame: "map"
+
+  charging_station:
+    model_id: "open_space_charge"
+    pose: {x: 0.0, y: 0.0, yaw: 0.0}
+    approach: {x: 0.0, y: 0.0, yaw: 1.5707}
+    frame: "map"
+
+  station_01:
+    model_id: "open_space_station1"
+    pose: {x: 4.0, y: 5.0, yaw: 0.0}
+    approach: {x: 4.0, y: 5.0, yaw: 0.0}
+    frame: "map"
+
+  station_02:
+    model_id: "open_space_station2"
+    pose: {x: -4.0, y: 5.0, yaw: 0.0}
+    approach: {x: -4.0, y: 5.0, yaw: 0.0}
+    frame: "map"
+
+  packing_area:
+    model_id: "open_space_packing"
+    pose: {x: 0.0, y: -4.0, yaw: 0.0}
+    approach: {x: 0.0, y: -4.0, yaw: 0.0}
+    frame: "map"

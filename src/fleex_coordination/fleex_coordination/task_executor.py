@@ -7,22 +7,25 @@ from fleex_msgs.msg import Task
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
 
-LOCATION_COORDS = {
-    'shelf_A_01': (2.0, 2.0, 0.0),
-    'shelf_A_02': (3.0, 2.0, 0.0),
-    'shelf_B_01': (-2.0, -2.0, 0.0),
-    'charging_station': (0.0, 0.0, 0.0),
-    'station_01': (4.0, 0.0, 0.0),
-    'station_02': (-4.0, 0.0, 0.0),
-    'packing_area': (0.0, -4.0, 0.0)
-}
-
+import math
+import os
+import yaml
 class TaskExecutor(Node):
     def __init__(self):
         super().__init__('fleex_task_executor')
         
         self.declare_parameter('robot_id', 'amr1')
         self.robot_id = self.get_parameter('robot_id').value
+        
+        # Load location registry
+        locations_file = os.path.join(os.getcwd(), 'config/warehouse/locations.yaml')
+        try:
+            with open(locations_file, 'r') as f:
+                self.location_registry = yaml.safe_load(f).get('locations', {})
+            self.get_logger().info(f"[TASK_EXEC] Loaded {len(self.location_registry)} locations from {locations_file}")
+        except Exception as e:
+            self.get_logger().error(f"[TASK_EXEC] Failed to load location registry: {e}")
+            self.location_registry = {}
         
         # Subscribe and publish tasks
         self.task_sub = self.create_subscription(Task, '/fleex/tasks', self.task_callback, 10)
@@ -87,8 +90,14 @@ class TaskExecutor(Node):
             self.current_task_msg.state = Task.STATE_IN_PROGRESS
             self.task_pub.publish(self.current_task_msg)
             
-        coords = LOCATION_COORDS.get(self.current_task_msg.pickup_location, (0.0, 0.0, 0.0))
-        self.send_nav_goal(coords, self.pickup_done_callback)
+        loc = self.location_registry.get(self.current_task_msg.pickup_location)
+        if not loc:
+            self.get_logger().error(f"[TASK_EXEC] Unknown pickup location: {self.current_task_msg.pickup_location}")
+            self.reset_execution_state()
+            return
+            
+        self.get_logger().info(f"[TASK_EXEC] task={self.current_task_msg.task_id} pickup_location={self.current_task_msg.pickup_location} resolved_model={loc.get('model_id')} goal_frame={loc.get('frame')} goal_x={loc['approach']['x']} goal_y={loc['approach']['y']} goal_yaw={loc['approach']['yaw']}")
+        self.send_nav_goal(loc, self.pickup_done_callback)
 
     def pickup_done_callback(self):
         self.get_logger().info(f"[TASK_EXEC] task={self.current_task_msg.task_id} pickup reached")
@@ -97,8 +106,14 @@ class TaskExecutor(Node):
         self.navigation_state = 'DROPOFF'
         self.get_logger().info(f"[TASK_EXEC] task={self.current_task_msg.task_id} dropoff navigation started")
         
-        coords = LOCATION_COORDS.get(self.current_task_msg.dropoff_location, (0.0, 0.0, 0.0))
-        self.send_nav_goal(coords, self.dropoff_done_callback)
+        loc = self.location_registry.get(self.current_task_msg.dropoff_location)
+        if not loc:
+            self.get_logger().error(f"[TASK_EXEC] Unknown dropoff location: {self.current_task_msg.dropoff_location}")
+            self.reset_execution_state()
+            return
+            
+        self.get_logger().info(f"[TASK_EXEC] task={self.current_task_msg.task_id} dropoff_location={self.current_task_msg.dropoff_location} resolved_model={loc.get('model_id')} goal_frame={loc.get('frame')} goal_x={loc['approach']['x']} goal_y={loc['approach']['y']} goal_yaw={loc['approach']['yaw']}")
+        self.send_nav_goal(loc, self.dropoff_done_callback)
         
     def dropoff_done_callback(self):
         self.get_logger().info(f"[TASK_EXEC] task={self.current_task_msg.task_id} dropoff reached")
@@ -110,19 +125,22 @@ class TaskExecutor(Node):
         
         self.reset_execution_state()
 
-    def send_nav_goal(self, coords, done_callback):
+    def send_nav_goal(self, loc, done_callback):
         if not self.nav_client.wait_for_server(timeout_sec=5.0):
             self.get_logger().error(f"[TASK_EXEC] Nav2 Action server not available!")
             self.reset_execution_state()
             return
             
         goal_msg = NavigateToPose.Goal()
-        goal_msg.pose.header.frame_id = 'map'
+        goal_msg.pose.header.frame_id = loc.get('frame', 'map')
         goal_msg.pose.header.stamp = self.get_clock().now().to_msg()
-        goal_msg.pose.pose.position.x = float(coords[0])
-        goal_msg.pose.pose.position.y = float(coords[1])
-        goal_msg.pose.pose.position.z = float(coords[2])
-        goal_msg.pose.pose.orientation.w = 1.0 
+        goal_msg.pose.pose.position.x = float(loc['approach']['x'])
+        goal_msg.pose.pose.position.y = float(loc['approach']['y'])
+        goal_msg.pose.pose.position.z = 0.0
+        
+        yaw = float(loc['approach']['yaw'])
+        goal_msg.pose.pose.orientation.z = math.sin(yaw / 2.0)
+        goal_msg.pose.pose.orientation.w = math.cos(yaw / 2.0)
         
         self.current_done_callback = done_callback
         
