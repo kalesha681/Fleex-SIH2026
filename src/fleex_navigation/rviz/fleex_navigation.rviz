@@ -115,7 +115,7 @@ Visualization Manager:
         Durability Policy: Transient Local
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /fleet/merged_map
+        Value: /amr1/map
       Use Timestamp: false
       Value: true
 
