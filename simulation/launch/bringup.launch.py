@@ -22,8 +22,10 @@ def generate_launch_description():
         
         # 1. Generate URDF synchronously
         urdf_file = f"/tmp/{name}.urdf"
-        xacro_cmd = f"xacro /home/cp-lab/sih_fleex_workspace/simulation/urdf/amr1.xacro sim_gz:=true two_d_lidar_enabled:=true robot_namespace:={ns} > {urdf_file}"
-        os.system(xacro_cmd)
+        xacro_cmd = f"xacro /home/cp-lab/sih_fleex_workspace/simulation/urdf/amr1.xacro sim_gz:=true two_d_lidar_enabled:=true robot_namespace:={ns}"
+        urdf_content = os.popen(xacro_cmd).read()
+        with open(urdf_file, 'w') as f:
+            f.write(urdf_content)
 
         # 2. Spawn robot
         nodes.append(Node(
@@ -38,6 +40,23 @@ def generate_launch_description():
                 '-z', '0.1'
             ],
             output='screen'
+        ))
+
+        # 2.5 Robot State Publisher
+        nodes.append(Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            namespace=name,
+            output='screen',
+            parameters=[{
+                'robot_description': urdf_content, 
+                'use_sim_time': True,
+                'frame_prefix': ns
+            }],
+            remappings=[
+                ('/tf', f'/{name}/tf'),
+                ('/tf_static', f'/{name}/tf_static')
+            ]
         ))
 
         # 3. Add to bridge

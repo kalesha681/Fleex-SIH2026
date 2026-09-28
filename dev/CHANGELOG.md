@@ -1,0 +1,108 @@
+# Changelog
+
+- **Phase 0 Verification**:
+  - Replaced `$(find fleex_simulation)` in `simulation/urdf/amr1.xacro` with absolute workspace path `/home/cp-lab/sih_fleex_workspace` to allow xacro generation without an active ROS package.
+  - Sourced ROS 2 Jazzy and verified Gazebo Harmonic 8.15.0 works.
+  - Confirmed `simulation/worlds/large_warehouse.world` loads (using `GZ_SIM_RESOURCE_PATH`).
+  - Successfully ran `ros_gz_sim create` to spawn `amr1`.
+  - Passed Gazebo-native movement tests via `gz topic`.
+- **Phase 1 (Bridge Implementation)**:
+  - Created `simulation/launch/bridge.launch.py` to launch `ros_gz_bridge`.
+  - Successfully bridged `/cmd_vel` (ROS->GZ), `/odom` (GZ->ROS), `/model/amr1/tf` (GZ->ROS as `/tf`), and `/clock` (GZ->ROS).
+  - Verified end-to-end command path from ROS 2 `/cmd_vel` -> Gazebo -> ROS 2 `/odom`.
+- **Phase 1 (Three-AMR Simulation Foundation)**:
+  - Parameterized `simulation/urdf/gz.xacro` to support unique `robot_namespace` parameters.
+  - Developed `simulation/launch/bringup.launch.py` to synchronously spawn `amr1`, `amr2`, and `amr3`.
+  - Configured `ros_gz_bridge` to bridge and remap isolated namespaces (`/amr1/cmd_vel`, `/amr1/odom`, `/amr1/tf`).
+  - Human testing confirmed complete namespace, command, and odometry isolation for the 3-robot cluster.
+- **Phase 2.1 (FLEEX ROS 2 Workspace & Heartbeat Message)**:
+  - Created `src/` to house standard ROS 2 packages independently from the core simulation assets.
+  - Implemented `fleex_msgs` with proper rosidl dependencies.
+  - Created `Heartbeat.msg` containing `robot_id`, `sequence`, and `stamp`.
+  - Built with `colcon build` and verified the interface structure using `ros2 interface show`.
+- **Phase 2.2 (Zenoh Heartbeat Implementation)**:
+  - Created `fleex_communication` package scaffold using `ament_python`.
+  - Configured dependencies (`rclpy`, `fleex_msgs`) and discovered native Python `eclipse-zenoh` package.
+  - Implemented `heartbeat_publisher.py` node that broadcasts `Heartbeat.msg` with parameterized `robot_id` and monotonic sequence on `heartbeat` topic.
+  - Successfully ran static build (`colcon build`), verified Python syntax, and completely verified publisher at runtime via human tests.
+  - Implemented `heartbeat_monitor.py` node to track ALIVE/TIMED_OUT/RECOVERED states and sequence progression dynamically for multiple robot IDs.
+  - Successfully verified `heartbeat_monitor.py` statically via `colcon build` and thoroughly at runtime via human tests (confirming multi-peer tracking, timeout detection, and recovery logging).
+- **Phase 3.1 (Core Message Definitions)**:
+  - Created `RobotState.msg` to track operational status and current task.
+  - Created `Task.msg` to track warehouse tasks, pickup/dropoff, and state.
+  - Created `TaskBid.msg` to support Contract-Net bidding costs.
+  - Created `ZoneState.msg` to track occupancy state for coordination.
+  - Created `Lease.msg` utilizing `builtin_interfaces/Time` for zone permissions.
+  - Configured `CMakeLists.txt` for `fleex_msgs` and verified build via `colcon build` and `ros2 interface show`.
+- **Phase 3.2 (Core Service Definitions)**:
+  - Created `RequestZone.srv` with minimum required payload and `Lease.msg` response mapping.
+  - Created `AssignTask.srv` which natively consumes `Task.msg` for robust assignment validation.
+  - Verified static generation and integrity via `colcon build` and `ros2 interface show`.
+- **Phase 4.1 (Complete Multi-Robot LiDAR Foundation)**:
+  - Enabled existing `gpu_lidar` plugin inside Gazebo via `two_d_lidar_enabled:=true` xacro argument in `bringup.launch.py` for all 3 robots.
+  - Added `ros_gz_bridge` mapping to isolate `/model/<name>/scan` Gazebo topic to `/<name>/scan` ROS 2 topic for each AMR using `sensor_msgs/msg/LaserScan[gz.msgs.LaserScan`.
+  - Static generation, xacro injection, and launch script syntax successfully verified.
+- **Phase 5.1 (Zenoh ROS 2 Middleware Foundation)**:
+  - Audited ROS 2 environment and confirmed `rmw_zenoh_cpp` was not installed natively.
+  - Formulated the exact installation and environment export requirements (`RMW_IMPLEMENTATION=rmw_zenoh_cpp`, `ZENOH_ROUTER_CONFIG_URI`).
+  - Authored a minimal, strict peer-to-peer multicast Zenoh configuration file at `config/zenoh/fleex_zenoh_config.json5`.
+  - Confirmed via architectural audit that the existing `fleex_communication` logic (heartbeat nodes) inherits middleware-independence from `rclpy` and requires zero code rewriting to operate over Zenoh.
+  - Addressed `rclpy.shutdown()` exceptions in python nodes gracefully when stopping via `Ctrl+C`.
+  - Human verification proved that standard `rmw_zenohd` enables local ROS 2 session communication reliably without SPOF configurations.
+- **Phase 5.2 (Distributed Zenoh Multi-Router Verification)**:
+  - Created dedicated distributed testing configurations (`config/zenoh/router_amr1.json5`, `config/zenoh/router_amr2.json5`) leveraging port offsets (`7447`/`7448`) to simulate independent network spines on a single machine.
+  - Created `config/zenoh/session_amr*.json5` to force node-to-local-router connections explicitly on isolated ports.
+  - Drafted comprehensive runtime commands and established network port/topology expectations for single-machine multi-router Zenoh tests.
+  - Human verification successfully proved that ROS 2 messages flow through the explicit `Router A -> Router B` P2P link, and that breaking the router link properly triggers the heartbeat timeout isolation.
+- **Phase 6 (Minimal Task Generator)**:
+  - Scaffolding created for `fleex_coordination` package (`ament_python` build type).
+  - Implemented `fleex_task_generator` node which publishes `fleex_msgs/Task` messages on `/fleex/tasks`.
+  - Statically validated behavior: unassigned state, unique IDs, parameter-driven configurable location arrays.
+  - Human runtime verification proved the generator correctly streams clean, unassigned `Task` messages identically to an external WMS bridging into the Zenoh middleware.
+- **Phase 7.1 (Distributed Contract-Net Interface and Auction Foundation)**:
+  - Developed `fleex_task_bidder` node in `fleex_coordination` to act as the autonomous robot-side auction participant.
+  - Subscribed to `/fleex/tasks` and defined deterministic eligibility logic (task state and ownership checks).
+  - Defined `/fleex/task_bids` topic and established a deterministic scalar bid generation formula using stable hashing to reproduce consistent cost pseudo-distances.
+  - Finalized strictly deterministic string-based tie-breaking logic for future task allocation phases.
+  - Human runtime verification proved the autonomous bidding node seamlessly receives tasks from the Zenoh network and emits reproducible structured bids.
+- **Phase 7.2 (Distributed Winner Determination)**:
+  - Enhanced `fleex_task_bidder` to actively subscribe to `/fleex/task_bids` to collect peer bids.
+  - Implemented configurable parameter `bid_collection_window` (default 1.0s) tied to unique `task_id` epochs.
+  - Developed strict logic to discard stale or duplicate bids deterministically.
+  - Both AMRs independently apply lowest-bid and lowest-robot_id tie-breaker logic upon auction closure to synchronously and deterministically resolve the exact same winner without central mediation.
+  - Human runtime verification proved both `amr_1` and `amr_2` calculate the identical auction winner locally over the Zenoh network without a central auctioneer.
+- **Phase 7.3 (Distributed Task Ownership Commit)**:
+  - Validated that `AssignTask.srv` implies centralization and opted for fully distributed peer-to-peer task state replication on `/fleex/tasks`.
+  - Upgraded `fleex_task_bidder` to explicitly mutate tasks to `STATE_ASSIGNED` and lock `owner_id` once localized winner consensus validates ownership.
+  - Implemented critical idempotency handling preventing cyclic assignment recursion.
+  - Added strict receipt validation checks requiring deterministic local validation of remote ownership claims against internally tracked auction epochs.
+  - Human runtime verification proved the winning node autonomously mutates the task state locally and successfully synchronizes that newly acquired ownership across the Zenoh network.
+- **Phase 7.4 (Distributed Task Lifecycle)**:
+  - Validated that the existing `Task.msg` is highly sufficient for basic lifecycle tracking and opted to maintain a single CRDT-like event broadcast on `/fleex/tasks`.
+  - Upgraded `fleex_task_bidder` to orchestrate a simulated internal execution timeline (timer-based transitions from `ASSIGNED` -> `IN_PROGRESS` -> `COMPLETED`).
+  - Added strict localized transition validators preventing illegal backward state transitions and protecting ownership domains from external tampering.
+  - Human runtime verification proved the owner natively advances and publishes sequential state transitions over Zenoh, successfully maintaining distributed lifecycle state without a centralized database.
+- **Phase 7.5 (Heartbeat-Aware Task Recovery Foundation)**:
+  - Modified `fleex_heartbeat_monitor` to emit standardized standard P2P liveness JSON events natively on `/fleex/peer_liveness`.
+  - Integrated `fleex_task_bidder` to actively trace global peer health to detect localized ownership degradation.
+  - Developed logical foundation distinguishing pure timeouts from task recovery via strict parameter `recovery_grace_period` (5.0s default).
+  - Ensured only `ASSIGNED` and `IN_PROGRESS` tasks are eligible, rigidly isolating terminal tasks (`COMPLETED`/`FAILED`) from recovery logic.
+  - Implemented dynamic active-recovery suppression if an unreachable peer logically recovers before grace period saturation.
+  - Human runtime verification proved that when a robot loses network connectivity (simulated by killing the heartbeat publisher), its tasks correctly transition to `ELIGIBLE` after the grace period.
+- **Phase 7.6 (Task Recovery Auction & Zombie Node Resolution)**:
+  - Added `epoch` field to `Task.msg` to serve as a distributed ownership conflict-resolution vector.
+  - Implemented dynamic re-auctioning for tasks reaching `ELIGIBLE` status.
+  - Added strict Zombie Bidding Protection logic blocking offline nodes from participating in task auctions.
+  - Implemented Zombie Task Yielding where stale owners cancel their execution timelines when presented with a newer epoch task update.
+  - Human runtime verification via automated `auto_test_7_6.sh` script confirmed successful recovery auctions, epoch tie-breaking, and zombie node yielding. Phase 7 is now FULLY COMPLETE.
+
+- **Phase 8.1 (Nav2 Navigation Foundation)**:
+  - Created `fleex_navigation` package with `package.xml`, `CMakeLists.txt`.
+  - Authored `nav2_params.yaml` covering all 10 Jazzy Nav2 lifecycle nodes.
+  - Configured SMAC 2D (global planner) and Regulated Pure Pursuit (local controller).
+  - Synthetic warehouse map: 1000x1000 pixels @ 0.05m/cell (50x50m).
+  - Static TF: `map → amr1/odom` (bypasses AMCL for MVP).
+  - `GroupAction + PushROSNamespace` wraps `navigation_launch.py` (required because it doesn't push its own namespace).
+  - Debugging history: Fixed YAML indentation, added missing `collision_monitor`/`smoother_server`/`route_server`/`docking_server` params, fixed namespace pushing.
+  - Verified from logs: All 10 nodes configure, RPP + SMAC2D load correctly.
+  - Activation requires Gazebo running (TF from bridge). Ready for human runtime test.

@@ -25,6 +25,10 @@
                 <odom_topic>${topic_prefix}/odom</odom_topic>
                 <tf_topic>${topic_prefix}/tf</tf_topic>
             </xacro:if>
+            <xacro:unless value="${odometry_source == 'encoders'}">
+                <odom_topic>/dummy_odom</odom_topic>
+                <tf_topic>/dummy_tf</tf_topic>
+            </xacro:unless>
             <frame_id>$(arg robot_namespace)odom</frame_id>
             <child_frame_id>$(arg robot_namespace)base_footprint</child_frame_id>
         </plugin>
