@@ -12,4 +12,9 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
+install(
+  PROGRAMS scripts/tf_relay.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()
