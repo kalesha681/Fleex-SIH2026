@@ -118,3 +118,10 @@
   - Replaced the timer-based simulated lifecycle in `task_bidder.py` with physical Nav2 action client integration in `task_executor.py`.
   - Preserved Phase 7 CRDT ownership and epoch semantics; executor natively yields and aborts navigation if a higher epoch task update indicates stolen/recovered ownership.
   - Ensured failed navigation leaves tasks in `IN_PROGRESS` state without marking them complete, allowing existing Phase 7.5 heartbeat recovery to intervene if the node dies.
+
+- **Phase 8.6 (FLEEX RViz Visualization)**:
+  - Created unified `.rviz` configuration `fleex_navigation.rviz` for complete fleet state visualization.
+  - Reused existing map (`/fleet/merged_map`), TF frames, and LiDAR/Costmap/Plan namespaces.
+  - Added dedicated AMR-3 displays (RobotModel, LaserScan, PointCloud, Costmaps, Plans) and assigned visually distinct colors (Green for AMR1, Orange for AMR2, Blue for AMR3).
+  - Deferred the FLEEX Status Panel since `fleex_msgs/msg/Task` cannot natively render in RViz without a custom C++ plugin.
+  - Added `rviz.launch.py` to `fleex_navigation` for easy 1-command visualization startup.

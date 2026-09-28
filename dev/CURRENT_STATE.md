@@ -76,3 +76,13 @@
 - Nav2 goal requests are perfectly namespaced to the robot's local action server (`/{robot_id}/navigate_to_pose`).
 - Task state ownership is rigidly maintained. Stale execution timelines are aborted natively when higher epochs dictate recovery/theft by a peer.
 - Built and statically validated with zero errors. Wait for human-in-the-loop Gazebo test.
+
+## Phase 8.6 Status: FLEEX RViz Visualization (IMPLEMENTED — NOT VERIFIED)
+
+### Phase 8.6 Completed
+- Added `fleex_navigation.rviz` configuration file to `fleex_navigation` package.
+- Duplicated and adapted display arrays for AMR-1, AMR-2, and AMR-3 with distinct visual colors for LiDAR and Paths.
+- Configured Global Costmap, Local Costmap, RobotModel, LaserScan, Global Plan, and Local Plan displays.
+- Set fixed frame to `map` for top-down warehouse visualization.
+- Deferred custom FLEEX Status Panel (cannot natively render `fleex_msgs/msg/Task` in standard RViz).
+- Created `rviz.launch.py` to cleanly launch RViz without Gazebo.
