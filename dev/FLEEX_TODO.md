@@ -32,11 +32,11 @@ After the simulation foundation passes:
 - [ ] Create FLEEX ROS 2 workspace
 - [ ] Create `fleex_msgs`
 - [ ] Create `fleex_communication`
-- [ ] Create `fleex_coordination`
+- [x] Create `fleex_coordination`
 - [ ] Create `fleex_edge_ai`
-- [ ] Create `fleex_navigation`
+- [x] Create `fleex_navigation`
 - [ ] Create `fleex_safety`
-- [ ] Verify clean `colcon build`
+- [x] Verify clean `colcon build`
 
 ---
 
@@ -52,19 +52,19 @@ After the simulation foundation passes:
 
 ## Task Allocation
 
-- [ ] Create minimal task generator
-- [ ] Implement task message
-- [ ] Implement Contract-Net bidding
-- [ ] Implement deterministic winner selection
-- [ ] Execute assigned task
+- [x] Create minimal task generator
+- [x] Implement task message
+- [x] Implement Contract-Net bidding
+- [x] Implement deterministic winner selection
+- [x] Execute assigned task
 
 ## Navigation
 
-- [ ] Create/verify warehouse map
-- [ ] Configure Nav2
-- [ ] Configure SMAC 2D
-- [ ] Configure RPP
-- [ ] Verify autonomous navigation
+- [x] Create/verify warehouse map
+- [x] Configure Nav2
+- [x] Configure SMAC 2D
+- [x] Configure RPP
+- [x] Verify autonomous navigation
 
 ## Multi-Robot Coordination
 
@@ -164,6 +164,10 @@ MULTIPLE AMRs
 ZENOH
         ↓
 TASK ALLOCATION
+        ↓
+NAVIGATION
+        ↓
+MULTI-ROBOT TRAFFIC
 ```
 
 Do not jump ahead unless there is a specific reason.

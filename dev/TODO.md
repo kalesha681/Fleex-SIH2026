@@ -23,7 +23,7 @@
 - [x] amr3 odometry is independent
 - [x] TF frames are unique
 - [x] all three robots operate simultaneously
-- [x] no unexpected topic collisions# Changelog
+- [x] no unexpected topic collisions
 
 - **Phase 0 Verification**:
   - Replaced `$(find fleex_simulation)` in `simulation/urdf/amr1.xacro` with absolute workspace path `/home/cp-lab/sih_fleex_workspace` to allow xacro generation without an active ROS package.
@@ -46,8 +46,8 @@
 - [x] Create ROS 2 workspace structure.
 - [x] Create `fleex_msgs` and define `Heartbeat.msg`.
 - [x] Create `fleex_communication`.
-- [ ] Create `fleex_coordination`.
+- [x] Create `fleex_coordination`.
 - [ ] Create `fleex_edge_ai`.
-- [ ] Create `fleex_navigation`.
+- [x] Create `fleex_navigation`.
 - [ ] Create `fleex_safety`.
 - [x] Verify clean `colcon build` for `fleex_msgs`.

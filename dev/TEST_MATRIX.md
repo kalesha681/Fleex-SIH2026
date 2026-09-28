@@ -18,4 +18,5 @@
 | Task Recovery (Phase 7.5) | Liveness Integration | Simulation: kill heartbeat node of owner | `task_bidder` detects timeout and marks ELIGIBLE | **PASS** | Verified during physical runtime test |
 | Task Recovery (Phase 7.6) | Recovery Auction | Simulation: surviving node recovers task | New owner resumes task at epoch+1 | **PENDING** | Requires human verification |
 | Task Recovery (Phase 7.6) | Zombie Yield | Simulation: Zombie node yields to new owner | Zombie stops execution upon seeing newer epoch | **PASS** | Automated script `auto_test_7_6.sh` |
-| Navigation (Phase 8.1) | Nav2 Foundation | `ros2 launch fleex_navigation navigation.launch.py` | Nav2 initializes with SMAC 2D and RPP | **PENDING** | Requires human verification |
+| Navigation (Phase 8.1) | Nav2 Foundation | `ros2 launch fleex_navigation navigation.launch.py namespace:=amr1` | Nav2 initializes with SMAC 2D and RPP | **PASS** | Successfully verified by human |
+| Navigation (Phase 8.2) | Multi-Robot Nav2 | `ros2 action send_goal /amrX/...` simultaneously | All 3 AMRs navigate without TF conflicts | **PASS** | Successfully verified by human |

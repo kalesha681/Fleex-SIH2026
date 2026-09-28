@@ -406,8 +406,8 @@ Nav2
 - [x] Configure Nav2
 - [x] Configure SMAC 2D
 - [x] Configure RPP
-- [ ] Send navigation goals
-- [ ] Verify successful navigation
+- [x] Send navigation goals
+- [x] Verify successful navigation
 
 ### Phase 8 Exit Condition
 

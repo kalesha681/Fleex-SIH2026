@@ -106,3 +106,8 @@
   - Debugging history: Fixed YAML indentation, added missing `collision_monitor`/`smoother_server`/`route_server`/`docking_server` params, fixed namespace pushing.
   - Verified from logs: All 10 nodes configure, RPP + SMAC2D load correctly.
   - Activation requires Gazebo running (TF from bridge). Ready for human runtime test.
+
+- **Phase 8.2 (Multi-Robot Nav2 Bringup)**:
+  - Parameterized `navigation.launch.py` to support dynamic namespaced bringup.
+  - Fixed major TF tree conflict in `simulation/urdf/gz.xacro` by disabling Gazebo's `/odom` topic and TF broadcasts when `odometry_source == 'world'`, establishing Gazebo physical state as the single source of truth.
+  - Human runtime verification proved 3 AMRs navigating simultaneously to separate goals using Nav2 Regulated Pure Pursuit and SMAC 2D without dropping LiDAR scans or encountering TF interference.
