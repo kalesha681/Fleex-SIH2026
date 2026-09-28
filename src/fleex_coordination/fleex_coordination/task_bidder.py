@@ -145,7 +145,14 @@ class TaskBidder(Node):
         
         normalized_distance = (hash_val % 100) / 100.0
         normalized_time = ((hash_val >> 8) % 100) / 100.0
-        bid_value = float(normalized_distance + normalized_time)
+        
+        # ADD WORKLOAD PENALTY
+        active_tasks = 0
+        for t_info in self.local_tasks.values():
+            if t_info['msg'].owner_id == self.robot_id and t_info['state'] in [Task.STATE_ASSIGNED, Task.STATE_IN_PROGRESS]:
+                active_tasks += 1
+                
+        bid_value = float(normalized_distance + normalized_time) + (active_tasks * 1000.0)
 
         timer = self.create_timer(
             self.bid_collection_window, 

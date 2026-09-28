@@ -86,3 +86,13 @@
 - Set fixed frame to `map` for top-down warehouse visualization.
 - Deferred custom FLEEX Status Panel (cannot natively render `fleex_msgs/msg/Task` in standard RViz).
 - Created `rviz.launch.py` to cleanly launch RViz without Gazebo.
+
+## Phase 8.7 Status: Offset Math & Fleet Load Balancing (COMPLETE & RUNTIME VERIFIED)
+
+### Phase 8.7 Completed
+- Developed automated Python tools to parse 3D `.DAE` COLLADA meshes directly from Gazebo models to mathematically derive bounding box dimensions.
+- Redefined all `locations.yaml` navigation goals to respect a precise `0.6m` safety clearance from the specific front face of each unique static shelf model, eliminating `status 6` collisions against inflation layers.
+- Relocated `station_01` out of a physically trapped box of `ClutteringC_01` pallets.
+- Implemented **Workload Penalty** in `fleex_task_bidder.py`. Bidders now add a massive `+1000.0` penalty for each currently owned active task, shifting the system from naive deterministic hashing to intelligent, autonomous fleet load balancing.
+- Implemented a **Task Queue** in `fleex_task_executor.py` so a robot successfully sequences simultaneously assigned tasks instead of discarding them.
+- **Human-in-the-loop runtime verified** that multiple tasks fired concurrently distribute successfully across the fleet. This surface-tested the limits of basic Nav2 and uncovered physical traffic contention (robots parking on top of each other's global paths), directly gating the entrance to Phase 9.

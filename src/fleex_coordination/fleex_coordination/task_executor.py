@@ -72,9 +72,13 @@ class TaskExecutor(Node):
             
         # We are assigned a new task (or recovered one)
         if msg.state in [Task.STATE_ASSIGNED, Task.STATE_IN_PROGRESS]:
+            if getattr(self, 'task_queue', None) is None:
+                self.task_queue = []
+                
             if self.navigation_state != 'IDLE':
-                # We are busy with another task, cannot accept this new one yet.
-                self.get_logger().warn(f"[TASK_EXEC] Ignored task {msg.task_id} because we are busy with {self.current_task_msg.task_id}")
+                if msg.task_id not in [t.task_id for t in self.task_queue]:
+                    self.task_queue.append(msg)
+                    self.get_logger().info(f"[TASK_EXEC] Queued task {msg.task_id}. Queue size: {len(self.task_queue)}")
                 return
                 
             self.current_task_msg = msg
@@ -182,6 +186,11 @@ class TaskExecutor(Node):
         self.navigation_state = 'IDLE'
         self.goal_handle = None
         self.current_done_callback = None
+        
+        if getattr(self, 'task_queue', None) and len(self.task_queue) > 0:
+            next_task = self.task_queue.pop(0)
+            self.get_logger().info(f"[TASK_EXEC] Dequeued task {next_task.task_id} for execution. Remaining in queue: {len(self.task_queue)}")
+            self.task_callback(next_task)
 
 def main(args=None):
     rclpy.init(args=args)

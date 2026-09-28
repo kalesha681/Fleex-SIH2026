@@ -19,6 +19,15 @@ venv.bak/
 # Gazebo temp files
 /tmp/*.urdf
 
+# Scratch & Debug Files
+dev/scratch/
+frames_*.gv
+frames_*.pdf
+
+# AI Customizations & Rules
+AGENTS.md
+dev/AI_RULES.md
+
 # OS generated files
 .DS_Store
 .DS_Store?
@@ -28,6 +37,3 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 .vscode/
-frames_*.gv
-frames_*.pdf
-dev/AI_RULES.md

@@ -20,13 +20,4 @@ def generate_launch_description():
         arguments=['-d', rviz_config_dir],
         output='screen'
     ))
-
-    # Custom relay script to merge namespaced TFs into global TF for visualization
-    nodes.append(Node(
-        package='fleex_navigation',
-        executable='tf_relay.py',
-        name='fleet_tf_relay',
-        output='screen'
-    ))
-
     return LaunchDescription(nodes)

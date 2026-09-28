@@ -12,3 +12,12 @@
 - Multi-robot Nav2 brings up successfully but local costmap continuously drops `amr2/scan` lidar rays claiming `Sensor origin at (-0.00, 1.92) is out of map bounds`. Controller aborts `navigate_to_pose`.
   - **Diagnosis**: Gazebo was running two conflicting odometry plugins simultaneously. `DiffDrive` was integrating from start `(0,0)` while `OdometryPublisher` tracked true world coords `(0, 2.0)`. The `tf_buffer` would grab `(0,0)` when updating the rolling costmap bounds (TimePointZero), but projected the lidar scan using the sensor timestamp matching `(0, 2.0)`.
   - **Fix**: Modified `simulation/urdf/gz.xacro` so that `DiffDrive` publishes Odometry and TF to `/dummy_odom` and `/dummy_tf` when `odometry_source == 'world'`. This ensures a single source of truth for the local costmap bounds in `amr2/odom`.
+- Multi-robot Nav2 costmap reports `Could not find a connection between 'amr1/odom' and 'amr1/base_footprint' because they are not part of the same tree`.
+  - **Diagnosis**: `tf_relay.py` (which bridges `/amrX/tf` → global `/tf`) was only launched inside `rviz.launch.py`. When running `fleet_navigation.launch.py` without RViz, no relay existed. The Gazebo bridge published odom→base_footprint TFs on `/amr1/tf`, but Nav2 nodes subscribe to global `/tf`. The TF tree was empty.
+  - **Fix**: Moved `tf_relay.py` into `fleet_navigation.launch.py`. Removed duplicate from `rviz.launch.py`.
+- Per-robot `map_server` lifecycle manager times out, `map_server` fails to configure. Global costmap falls back to 5x5m default.
+  - **Diagnosis**: Three separate `map_server` instances each loading a 1000x1000 map concurrently caused CPU spike and DDS contention. Lifecycle manager timed out waiting for configure.
+  - **Fix**: Replaced per-robot `map_server` with a single global `map_server` in `fleet_navigation.launch.py`. Added `map_topic: "/map"` to `nav2_params.yaml` static_layer. Updated RViz config topic from `/amr1/map` → `/map`.
+- After many kill/restart cycles, all ROS nodes report `Failed init_port fastrtps_port7006: open_and_lock_file failed`. `ros2 node list` cannot see bridge. No `/clock` or `/amr1/tf` messages flow.
+  - **Diagnosis**: 160 stale FastRTPS shared memory files in `/dev/shm/fastrtps_*` exhausted available SHM ports. The `ros_gz_bridge` process was alive but DDS-isolated from the rest of ROS.
+  - **Fix**: `rm -rf /dev/shm/fastrtps_*` followed by full restart of simulation + navigation.

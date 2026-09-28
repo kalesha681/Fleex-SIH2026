@@ -58,30 +58,7 @@ def launch_setup(context, *args, **kwargs):
         )
     ])
     
-    # 4. Map server
-    map_server_node = Node(
-        package='nav2_map_server',
-        executable='map_server',
-        name='map_server',
-        namespace=namespace,
-        output='screen',
-        parameters=[{'yaml_filename': map_yaml_file, 'use_sim_time': True}],
-        remappings=[('/tf', 'tf'), ('/tf_static', 'tf_static')]
-    )
-    
-    # 5. Lifecycle manager for map server
-    lifecycle_manager_map = Node(
-        package='nav2_lifecycle_manager',
-        executable='lifecycle_manager',
-        name='lifecycle_manager_map',
-        namespace=namespace,
-        output='screen',
-        parameters=[{'use_sim_time': True},
-                    {'autostart': True},
-                    {'node_names': ['map_server']}]
-    )
-    
-    return [static_tf_node, nav2_navigation, map_server_node, lifecycle_manager_map]
+    return [static_tf_node, nav2_navigation]
 
 def generate_launch_description():
     pkg_nav = get_package_share_directory('fleex_navigation')
