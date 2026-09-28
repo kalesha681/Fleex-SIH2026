@@ -212,47 +212,7 @@ class TaskBidder(Node):
             self.local_tasks[task_msg.task_id] = {'state': task_msg.state, 'msg': task_msg, 'timer': None, 'recovery_status': None}
             self.task_pub.publish(task_msg)
             
-            # Kick off simulated execution lifecycle
-            timer = self.create_timer(10.0, lambda tid=task_msg.task_id: self.simulate_in_progress(tid))
-            self.local_tasks[task_msg.task_id]['timer'] = timer
-            
-    def simulate_in_progress(self, task_id):
-        if task_id not in self.local_tasks:
-            return
-            
-        task_data = self.local_tasks[task_id]
-        if task_data.get('timer'):
-            task_data['timer'].cancel()
-            
-        if task_data['state'] == Task.STATE_ASSIGNED:
-            task_msg = task_data['msg']
-            task_msg.state = Task.STATE_IN_PROGRESS
-            task_data['state'] = Task.STATE_IN_PROGRESS
-            self.get_logger().info(f"[{task_id}] Simulated execution: Transitioning to IN_PROGRESS.")
-            self.task_pub.publish(task_msg)
-        
-        # Proceed to completed
-        timer = self.create_timer(10.0, lambda tid=task_id: self.simulate_completed(tid))
-        task_data['timer'] = timer
-        
-    def simulate_completed(self, task_id):
-        if task_id not in self.local_tasks:
-            return
-            
-        task_data = self.local_tasks[task_id]
-        if task_data.get('timer'):
-            task_data['timer'].cancel()
-            task_data['timer'] = None
-            
-        if task_data['state'] != Task.STATE_IN_PROGRESS:
-            return
-            
-        task_msg = task_data['msg']
-        task_msg.state = Task.STATE_COMPLETED
-        task_data['state'] = Task.STATE_COMPLETED
-        
-        self.get_logger().info(f"[{task_id}] Simulated execution: Transitioning to COMPLETED.")
-        self.task_pub.publish(task_msg)
+            self.get_logger().info(f"[{task_msg.task_id}] Handing over to Task Executor for physical navigation.")
 
     # ----------------------------------------------------
     # PHASE 7.5: TASK RECOVERY LOGIC

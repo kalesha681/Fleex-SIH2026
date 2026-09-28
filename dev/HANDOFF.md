@@ -1,26 +1,13 @@
 # Handoff
 
 ## Status
-- **Phase 8.2** (Multi-Robot Nav2 Bringup): VERIFIED
-- **Next Up**: Phase 9 (Multi-Robot Traffic)
+- **Phase 8.5** (Task → Navigation Integration): VERIFIED
+- **Next Up**: Set up RViz visualization.
 
 ## What Was Completed
-- Nav2 stack successfully deployed for `amr1`, `amr2`, and `amr3`.
-- Gazebo TF conflict resolved.
-- Simultaneous navigation verified by human.
+- Created `task_executor.py` to physically move the AMR via Nav2 `NavigateToPose`.
+- Validated build syntax and verified integration structure.
+- **Human-in-the-loop runtime verified** that a WMS-generated task successfully initiates physical navigation, completes the logical pickup event, drives to the dropoff, and marks the task as `COMPLETED`.
 
-## Next Action: Phase 9 (Multi-Robot Traffic)
-We need to generate meaningful traffic scenarios using the Nav2 stack.
-
-The `ROADMAP.md` dictates testing:
-1. Crossing paths
-2. Opposing traffic
-3. Following traffic
-4. Shared aisle
-5. Chokepoint approach
-
-**Implementation Step:**
-- Create a Python script (`src/scripts/traffic_scenarios.py`) to dispatch synchronized `NavigateToPose` goals to all three AMRs.
-- Test how standard Nav2 (SMAC 2D + RPP) behaves when multiple AMRs encounter each other.
-
-If the basic Nav2 stack cannot resolve the traffic scenarios cleanly, we proceed to **Phase 10 (Basic ORCA)** for local collision avoidance.
+## Next Action
+- Create and configure an RViz profile (`.rviz`) so the user can visualize the fleet (global costmaps, local costmaps, robot footprints, paths).

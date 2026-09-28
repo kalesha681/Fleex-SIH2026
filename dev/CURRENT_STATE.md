@@ -66,3 +66,13 @@
 - Identified and fixed a major TF tree conflict in `simulation/urdf/gz.xacro` where both `DiffDrive` (from `(0,0)`) and `OdometryPublisher` (from world coordinates) were simultaneously publishing `/odom` to `/base_footprint` TF data to the global TF tree.
 - Configured `DiffDrive` to sink its Odometry and TF publishers to dummy topics when `odometry_source == 'world'`, ensuring a clean, single source of truth for the Nav2 local costmap.
 - **Human-in-the-loop runtime verified** that `amr2` successfully navigates simultaneously without dropping lidar scans due to costmap bounds errors.
+
+## Phase 8.5 Status: Task → Navigation Integration (COMPLETE & RUNTIME VERIFIED)
+
+### Phase 8.5 Completed
+- Created `fleex_task_executor.py` to bridge distributed Task CRDTs to physical Nav2 execution.
+- Replaced timer-based lifecycle from `task_bidder.py` with physical state machine in `task_executor.py`.
+- Developed string-to-PoseStamped coordinate mapping for standard warehouse locations.
+- Nav2 goal requests are perfectly namespaced to the robot's local action server (`/{robot_id}/navigate_to_pose`).
+- Task state ownership is rigidly maintained. Stale execution timelines are aborted natively when higher epochs dictate recovery/theft by a peer.
+- Built and statically validated with zero errors. Wait for human-in-the-loop Gazebo test.

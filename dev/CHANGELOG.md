@@ -111,3 +111,10 @@
   - Parameterized `navigation.launch.py` to support dynamic namespaced bringup.
   - Fixed major TF tree conflict in `simulation/urdf/gz.xacro` by disabling Gazebo's `/odom` topic and TF broadcasts when `odometry_source == 'world'`, establishing Gazebo physical state as the single source of truth.
   - Human runtime verification proved 3 AMRs navigating simultaneously to separate goals using Nav2 Regulated Pure Pursuit and SMAC 2D without dropping LiDAR scans or encountering TF interference.
+
+- **Phase 8.5 (Task → Navigation Integration)**:
+  - Implemented `fleex_task_executor` node to orchestrate physical task execution (UNASSIGNED → ASSIGNED → Navigation to Pickup → Navigation to Dropoff → COMPLETED).
+  - Developed a minimal coordinate dictionary converting string locations (`shelf_A_01`, etc.) into `PoseStamped` Nav2 goals.
+  - Replaced the timer-based simulated lifecycle in `task_bidder.py` with physical Nav2 action client integration in `task_executor.py`.
+  - Preserved Phase 7 CRDT ownership and epoch semantics; executor natively yields and aborts navigation if a higher epoch task update indicates stolen/recovered ownership.
+  - Ensured failed navigation leaves tasks in `IN_PROGRESS` state without marking them complete, allowing existing Phase 7.5 heartbeat recovery to intervene if the node dies.
