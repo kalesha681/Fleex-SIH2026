@@ -65,6 +65,7 @@ def generate_launch_description():
             f'/model/{name}/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
             f'/model/{name}/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
             f'/model/{name}/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            f'/world/default/model/{name}/joint_state@sensor_msgs/msg/JointState[gz.msgs.Model',
         ])
         
         # Remap Gazebo topics to ROS namespaces
@@ -73,6 +74,7 @@ def generate_launch_description():
             (f'/model/{name}/odom', f'/{name}/odom'),
             (f'/model/{name}/tf', f'/{name}/tf'),
             (f'/model/{name}/scan', f'/{name}/scan'),
+            (f'/world/default/model/{name}/joint_state', f'/{name}/joint_states'),
         ])
 
     # 4. Bridge node
