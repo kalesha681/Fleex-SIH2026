@@ -62,6 +62,7 @@
 ## Phase 8.2 Status: Multi-Robot Nav2 Bringup (COMPLETE & RUNTIME VERIFIED)
 
 ### Phase 8.2 Completed
+
 - The existing `navigation.launch.py` is fully parameterized to support any robot `namespace`.
 - Identified and fixed a major TF tree conflict in `simulation/urdf/gz.xacro` where both `DiffDrive` (from `(0,0)`) and `OdometryPublisher` (from world coordinates) were simultaneously publishing `/odom` to `/base_footprint` TF data to the global TF tree.
 - Configured `DiffDrive` to sink its Odometry and TF publishers to dummy topics when `odometry_source == 'world'`, ensuring a clean, single source of truth for the Nav2 local costmap.
@@ -70,6 +71,7 @@
 ## Phase 8.5 Status: Task → Navigation Integration (COMPLETE & RUNTIME VERIFIED)
 
 ### Phase 8.5 Completed
+
 - Created `fleex_task_executor.py` to bridge distributed Task CRDTs to physical Nav2 execution.
 - Replaced timer-based lifecycle from `task_bidder.py` with physical state machine in `task_executor.py`.
 - Developed string-to-PoseStamped coordinate mapping for standard warehouse locations.
@@ -80,6 +82,7 @@
 ## Phase 8.6 Status: FLEEX RViz Visualization (COMPLETE & RUNTIME VERIFIED)
 
 ### Phase 8.6 Completed
+
 - Added `fleex_navigation.rviz` configuration file to `fleex_navigation` package.
 - Duplicated and adapted display arrays for AMR-1, AMR-2, and AMR-3 with distinct visual colors for LiDAR and Paths.
 - Configured Global Costmap, Local Costmap, RobotModel, LaserScan, Global Plan, and Local Plan displays.
@@ -91,6 +94,7 @@
 ## Phase 8.7 Status: Offset Math & Fleet Load Balancing (COMPLETE & RUNTIME VERIFIED)
 
 ### Phase 8.7 Completed
+
 - Developed automated Python tools to parse 3D `.DAE` COLLADA meshes directly from Gazebo models to mathematically derive bounding box dimensions.
 - Redefined all `locations.yaml` navigation goals to respect a precise `0.6m` safety clearance from the specific front face of each unique static shelf model, eliminating `status 6` collisions against inflation layers.
 - Relocated `station_01` out of a physically trapped box of `ClutteringC_01` pallets.
@@ -101,6 +105,7 @@
 ## Phase 9 Status: Minimal Zone Reservation / Chokepoint Coordination (COMPLETE & RUNTIME VERIFIED)
 
 ### Phase 9 Completed
+
 - Designed MVP Central Chokepoint (`choke_01`) at `(x=0, y=0)` with 2.0m radius, covering the primary warehouse crossing corridor.
 - Implemented `ZoneManager` node to manage requests (`RequestZone.srv`), releases (`ReleaseZone.srv`), TTL expiration, and publish `ZoneState.msg`.
 - Integrated `zone_manager` into `fleet_coordination.launch.py`.
@@ -111,5 +116,14 @@
 - **Human-in-the-loop runtime verified (Recovery Integration)**: `amr2` gained the lease first but its local Nav2 aborted path planning (due to costmap geometry). `amr2` successfully aborted execution, explicitly threw the task back to the distributed fleet for recovery (Phase 6), and cleanly released its zone lease, proving the full resilience of the FLEEX architecture!
 - **Architectural Limitation**: The current MVP uses ZoneManager as the authoritative lease authority. Fully decentralized lease authority and partition reconciliation are not claimed as verified.
 
+## Phase 16 Status: Full MVP Integration & Demo Prep (IMPLEMENTED — NOT VERIFIED)
+
+### Phase 16 Completed
+
+- Designed deterministic scenario `demo_generator.py` generating 3 intersecting tasks to natively demonstrate chokepoint contention, distributed allocation, and Nav2 static obstacle avoidance.
+- Authored comprehensive multi-terminal operator documentation in `scripts/demo/README.md`.
+- Explicitly documented how to manually force a node heartbeat failure to trigger the Phase 7 CRDT task recovery.
+- Stopped implementation to await human runtime verification of the complete MVP demonstration sequence.
+
 ## Next Project Direction
-MVP INTEGRATION / DEMO PREPARATION. The focus is no longer on implementing new phases, but on verifying and cleaning up the end-to-end demonstration.
+MVP DEMONSTRATION RECORDING. The human operator must follow `scripts/demo/README.md` to run the demonstration, trigger the failures, and verify the successful end-to-end scenario.

@@ -1,34 +1,34 @@
 # HANDOFF
 
-## PHASE 9 STATUS
-**COMPLETE — IMPLEMENTED AND RUNTIME VERIFIED**
+## PHASE 16 STATUS
+**IMPLEMENTED — NOT VERIFIED**
 
 ## What was completed
-- Designed MVP Central Chokepoint (`choke_01`) at `(x=0, y=0)` with 2.0m radius, covering the primary warehouse crossing corridor.
-- Implemented `ZoneManager` node to manage requests, releases, TTL expiration, and publish state.
-- Rewrote `TaskExecutor` to perform mathematical circle-line intersection testing against the chokepoint boundaries before requesting Nav2 goals.
-- Used asynchronous retry timers for zone lease requests instead of thread-blocking.
-- **Verified Runtime Scenario**: 
-  - `amr1` was correctly denied a lease and waited safely. After lease expiration, `amr1` gained the lease, navigated through the corridor, requested the lease again for its drop-off route, and successfully completed the task.
-  - `amr2` gained a lease first but its local Nav2 aborted path planning. `amr2` successfully aborted execution, threw the task back to the distributed fleet for recovery, and cleanly released its zone lease, proving full resilience.
+
+- Created `scripts/demo/demo_generator.py` to deterministically fire 3 semantic tasks.
+- Authored `scripts/demo/README.md` with explicit operator instructions for the full end-to-end recording sequence.
+- Verified that ORCA is NOT IMPLEMENTED (only mentioned in documentation) and clearly excluded it from the demo instructions to prevent faking functionality.
+- Prepared the repository for human-in-the-loop runtime demonstration of Phase 16 (Full MVP Integration).
 
 ## Next Priority
-**MVP INTEGRATION / DEMO PREPARATION**
+**MVP DEMONSTRATION RECORDING**
 
-Before implementing additional architecture, the next work should be:
-1. Audit current MVP completeness.
-2. Identify the smallest remaining features required by the submission/demo (e.g., LightGBM edge inference, Software Safety Shield, VDA 5050 boundary).
-3. Verify the complete end-to-end demonstration.
-4. Clean documentation.
-5. Prepare GitHub repository.
-6. Prepare PPT.
-7. Prepare demo video.
+The human operator should:
+1. Open 6 terminals and source the workspace + `env.sh`.
+2. Follow `scripts/demo/README.md` exactly to run the simulation.
+3. Record the distributed allocation, static obstacle avoidance, and chokepoint contention natively resolving.
+4. Manually trigger the heartbeat failure as documented.
+5. Record the distributed task recovery and final task completions.
+6. Report the result back to mark Phase 16 as VERIFIED.
 
 ## Last successful test
-- Cross-zone contention simulation (`test_zone_1` and `test_zone_2`). `amr2` safely aborted due to Nav2 failure and released lease; `amr1` waited, acquired lease, navigated successfully through the zone, delivered the payload, and completed the task.
+
+- Cross-zone contention simulation (Phase 9 test). `amr2` safely aborted due to Nav2 failure and released lease; `amr1` waited, acquired lease, navigated successfully through the zone, delivered the payload, and completed the task.
 
 ## Last failed test
+
 - N/A
 
 ## Next exact action
-- Audit current MVP completeness and prepare for Phase 10 / Demo scenarios. DO NOT begin Phase 10 implementation in this session.
+
+- STOP IMPLEMENTATION. The human operator must execute the `scripts/demo/README.md` sequence and report the final MVP runtime verification results.

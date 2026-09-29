@@ -141,3 +141,8 @@
   - Updated `TaskExecutor` to use an asynchronous retry timer for zone lease requests instead of thread-blocking.
   - Human runtime verification proved the logic perfectly evaluates straight-line path intersection: one AMR is correctly denied a lease and waits safely, then successfully acquires the lease after expiration, and cleanly completes the task by requesting and releasing the lease dynamically per segment.
   - Human runtime verification (Recovery Integration) proved that if a robot holding a zone lease aborts its navigation (due to Nav2 failure), it cleanly releases the lease and throws the task back to the distributed fleet for recovery (Phase 6 integration).
+
+- **Phase 16 (MVP Demo Preparation)**:
+  - Created `scripts/demo/demo_generator.py` to publish deterministic semantic cross-warehouse tasks designed to force static obstacle avoidance and chokepoint contention simultaneously.
+  - Authored `scripts/demo/README.md` containing full multi-terminal human-in-the-loop operational instructions for the final MVP demonstration.
+  - Confirmed ORCA, LightGBM, and independent Software Safety Shield remain NOT IMPLEMENTED for the MVP demonstration sequence.
