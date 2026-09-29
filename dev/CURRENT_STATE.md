@@ -77,7 +77,7 @@
 - Task state ownership is rigidly maintained. Stale execution timelines are aborted natively when higher epochs dictate recovery/theft by a peer.
 - Built and statically validated with zero errors. Wait for human-in-the-loop Gazebo test.
 
-## Phase 8.6 Status: FLEEX RViz Visualization (IMPLEMENTED — NOT VERIFIED)
+## Phase 8.6 Status: FLEEX RViz Visualization (COMPLETE & RUNTIME VERIFIED)
 
 ### Phase 8.6 Completed
 - Added `fleex_navigation.rviz` configuration file to `fleex_navigation` package.
@@ -86,6 +86,7 @@
 - Set fixed frame to `map` for top-down warehouse visualization.
 - Deferred custom FLEEX Status Panel (cannot natively render `fleex_msgs/msg/Task` in standard RViz).
 - Created `rviz.launch.py` to cleanly launch RViz without Gazebo.
+- **Human-in-the-loop runtime verified** that RViz properly visualizes the map, TFs, and 3 distinct AMR displays without clutter.
 
 ## Phase 8.7 Status: Offset Math & Fleet Load Balancing (COMPLETE & RUNTIME VERIFIED)
 
@@ -108,3 +109,7 @@
 - Validated Python syntax and successfully built package `fleex_coordination`.
 - **Human-in-the-loop runtime verified** that the logic perfectly evaluates straight-line path intersection. `amr1` was correctly denied a lease and waited safely. After lease expiration, `amr1` gained the lease, completed the navigation through the corridor, requested the lease again for its drop-off route, and successfully completed the task.
 - **Human-in-the-loop runtime verified (Recovery Integration)**: `amr2` gained the lease first but its local Nav2 aborted path planning (due to costmap geometry). `amr2` successfully aborted execution, explicitly threw the task back to the distributed fleet for recovery (Phase 6), and cleanly released its zone lease, proving the full resilience of the FLEEX architecture!
+- **Architectural Limitation**: The current MVP uses ZoneManager as the authoritative lease authority. Fully decentralized lease authority and partition reconciliation are not claimed as verified.
+
+## Next Project Direction
+MVP INTEGRATION / DEMO PREPARATION. The focus is no longer on implementing new phases, but on verifying and cleaning up the end-to-end demonstration.

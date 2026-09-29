@@ -16,11 +16,13 @@
 | Interface (Phase 2) | Heartbeat.msg | `ros2 interface show` | Message fields render accurately | **PASS** | Build verified |
 | Task Recovery (Phase 7.5) | Eligibility Logic | `python3 test_recovery_logic.py` | Task becomes ELIGIBLE after timeout | **PASS** | Automated node-level logic test |
 | Task Recovery (Phase 7.5) | Liveness Integration | Simulation: kill heartbeat node of owner | `task_bidder` detects timeout and marks ELIGIBLE | **PASS** | Verified during physical runtime test |
-| Task Recovery (Phase 7.6) | Recovery Auction | Simulation: surviving node recovers task | New owner resumes task at epoch+1 | **PENDING** | Requires human verification |
+| Task Recovery (Phase 7.6) | Recovery Auction | Simulation: surviving node recovers task | New owner resumes task at epoch+1 | **PASS** | Verified during physical runtime test / automated test |
 | Task Recovery (Phase 7.6) | Zombie Yield | Simulation: Zombie node yields to new owner | Zombie stops execution upon seeing newer epoch | **PASS** | Automated script `auto_test_7_6.sh` |
 | Navigation (Phase 8.1) | Nav2 Foundation | `ros2 launch fleex_navigation navigation.launch.py namespace:=amr1` | Nav2 initializes with SMAC 2D and RPP | **PASS** | Successfully verified by human |
 | Navigation (Phase 8.2) | Multi-Robot Nav2 | `ros2 action send_goal /amrX/...` simultaneously | All 3 AMRs navigate without TF conflicts | **PASS** | Successfully verified by human |
 | Task Integration (Phase 8.5) | Physical Task Execution | WMS generates task -> Node bids/wins -> Drives to Pickup -> Drives to Dropoff -> COMPLETED | Task transitions natively based on physical completion | **PASS** | Successfully verified by human |
 | Visualization (Phase 8.6) | RViz Fleet Configuration | `ros2 launch fleex_navigation rviz.launch.py` | RViz loads Map, TF, and 3 distinct AMR displays without clutter | **PASS** | Successfully verified by human |
 | Zone Management (Phase 9) | Lease Request & Grant | Simulation: send cross-zone task to one robot | Robot stops before center corridor, requests zone, gets lease, crosses. | **PASS** | Successfully verified by human |
-| Zone Management (Phase 9) | Lease Exclusion | Simulation: send cross-zone task to two robots | Robot 1 gets lease. Robot 2 waits safely outside until Robot 1 finishes crossing. | **PASS** | Successfully verified by human |
+| Zone Management (Phase 9) | Lease Exclusion / Waiting | Simulation: send cross-zone task to two robots | Robot 1 gets lease. Robot 2 waits safely outside until Robot 1 finishes crossing. | **PASS** | Successfully verified by human |
+| Zone Management (Phase 9) | Lease Expiration / Handoff | Simulation: task holding lease dies | Lease expires via TTL, handed off to waiting robot. | **PASS** | Successfully verified by human |
+| Zone Management (Phase 9) | Navigation Failure + Lease/Task Recovery Integration | Simulation: robot holding lease aborts Nav2 | Robot releases lease, recovers task to fleet via Phase 6. | **PASS** | Successfully verified by human |

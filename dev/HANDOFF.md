@@ -1,31 +1,34 @@
-# CURRENT STATUS
+# HANDOFF
+
+## PHASE 9 STATUS
+**COMPLETE — IMPLEMENTED AND RUNTIME VERIFIED**
 
 ## What was completed
-- **Phase 9 (Zone Reservation/Chokepoint Coordination) is successfully COMPLETE and VERIFIED!**
-- Verified that robots correctly intersect their mathematical paths with `choke_01` and request leases.
-- Verified that `ZoneManager` properly denies leases if the zone is occupied.
-- Verified that waiting robots safely pause their execution timelines and do not invoke Nav2 until granted the lease.
-- Verified that expired leases (due to stuck robots) are successfully reclaimed by `ZoneManager` and passed to waiting peers.
-- Verified that Nav2 failures (e.g. `status 6` / Aborted) correctly trigger Phase 6 Task Recovery, pushing the task back to the distributed fleet and releasing any held leases.
-- Found and fixed a duplicate method bug in `task_executor.py` that was suppressing Nav2 execution after lease acquisition.
+- Designed MVP Central Chokepoint (`choke_01`) at `(x=0, y=0)` with 2.0m radius, covering the primary warehouse crossing corridor.
+- Implemented `ZoneManager` node to manage requests, releases, TTL expiration, and publish state.
+- Rewrote `TaskExecutor` to perform mathematical circle-line intersection testing against the chokepoint boundaries before requesting Nav2 goals.
+- Used asynchronous retry timers for zone lease requests instead of thread-blocking.
+- **Verified Runtime Scenario**: 
+  - `amr1` was correctly denied a lease and waited safely. After lease expiration, `amr1` gained the lease, navigated through the corridor, requested the lease again for its drop-off route, and successfully completed the task.
+  - `amr2` gained a lease first but its local Nav2 aborted path planning. `amr2` successfully aborted execution, threw the task back to the distributed fleet for recovery, and cleanly released its zone lease, proving full resilience.
 
-## What is currently being worked on
-- Moving towards MVP completion.
-- Remaining major MVP phases:
-  - Phase 10: Edge AI / LightGBM (Edge Inference for traffic/traversal prediction).
-  - Phase 11: Safety Shield (Velocity Override).
-  - Phase 12: VDA 5050 / Central Server integration.
+## Next Priority
+**MVP INTEGRATION / DEMO PREPARATION**
+
+Before implementing additional architecture, the next work should be:
+1. Audit current MVP completeness.
+2. Identify the smallest remaining features required by the submission/demo (e.g., LightGBM edge inference, Software Safety Shield, VDA 5050 boundary).
+3. Verify the complete end-to-end demonstration.
+4. Clean documentation.
+5. Prepare GitHub repository.
+6. Prepare PPT.
+7. Prepare demo video.
 
 ## Last successful test
-- Cross-zone contention simulation (`test_zone_1` and `test_zone_2`). `amr2` safely aborted, `amr1` waited, acquired lease, navigated successfully through the zone, delivered the payload, and completed the task.
+- Cross-zone contention simulation (`test_zone_1` and `test_zone_2`). `amr2` safely aborted due to Nav2 failure and released lease; `amr1` waited, acquired lease, navigated successfully through the zone, delivered the payload, and completed the task.
 
 ## Last failed test
 - N/A
 
-## Files changed
-- `src/fleex_coordination/fleex_coordination/task_executor.py` (Fixed duplicate `zone_request_response_callback`)
-- `dev/CURRENT_STATE.md`
-- `dev/TEST_MATRIX.md`
-
 ## Next exact action
-- Review `dev/ROADMAP.md` and initiate **Phase 10: Edge AI (LightGBM)** or whatever the human prioritizes next for the MVP.
+- Audit current MVP completeness and prepare for Phase 10 / Demo scenarios. DO NOT begin Phase 10 implementation in this session.

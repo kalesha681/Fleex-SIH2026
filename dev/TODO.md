@@ -1,53 +1,36 @@
 # To-Do
 
-- [x] Phase 0: Verify ROS 2 and Gazebo environment.
-- [x] Phase 0: Test loading `simulation/worlds/large_warehouse.world`.
-- [x] Phase 0: Test spawning `simulation/urdf/amr1.xacro`.
-- [x] Phase 0: Test Gazebo transport topics (`/cmd_vel`, `/odom`).
-- [x] Phase 1: Implement ROS-Gazebo bridge (`ros_gz_bridge`).
-- [x] Phase 1: Create a core launch file (`simulation/launch/bringup.launch.py` or similar).
+## Completed Phases
+- [x] Phase 0: Project Foundation
+- [x] Phase 1: Simulation Foundation (3 AMRs)
+- [x] Phase 2: ROS 2 Packages
+- [x] Phase 3: Message Definitions
+- [x] Phase 4: Multi-Robot Simulation
+- [x] Phase 5: Zenoh Communication + Heartbeats
+- [x] Phase 6: Minimal Task Generator
+- [x] Phase 7: Distributed Task Allocation & Recovery
+- [x] Phase 8: Multi-Robot Nav2 Navigation
+- [x] Phase 9: Multi-Robot Traffic / Chokepoint Coordination
 
-## Phase 1: 3-AMR Simulation Foundation
+## In Progress / Next
 
-- [x] amr1 spawns
-- [x] amr2 spawns
-- [x] amr3 spawns
-- [x] amr1 has independent command interface
-- [x] amr2 has independent command interface
-- [x] amr3 has independent command interface
-- [x] amr1 command does not move amr2/amr3
-- [x] amr2 command does not move amr1/amr3
-- [x] amr3 command does not move amr1/amr2
-- [x] amr1 odometry is independent
-- [x] amr2 odometry is independent
-- [x] amr3 odometry is independent
-- [x] TF frames are unique
-- [x] all three robots operate simultaneously
-- [x] no unexpected topic collisions
+### Phase 10: Edge AI (LightGBM)
+- [ ] Create `fleex_edge_ai` package.
+- [ ] Generate offline traffic dataset.
+- [ ] Train LightGBM inference model for congestion delay prediction.
+- [ ] Implement inference node to run locally at the edge.
+- [ ] Integrate predicted delay into `TaskBidder` bidding logic.
 
-- **Phase 0 Verification**:
-  - Replaced `$(find fleex_simulation)` in `simulation/urdf/amr1.xacro` with absolute workspace path `/home/cp-lab/sih_fleex_workspace` to allow xacro generation without an active ROS package.
-  - Sourced ROS 2 Jazzy and verified Gazebo Harmonic 8.15.0 works.
-  - Confirmed `simulation/worlds/large_warehouse.world` loads (using `GZ_SIM_RESOURCE_PATH`).
-  - Successfully ran `ros_gz_sim create` to spawn `amr1`.
-  - Passed Gazebo-native movement tests via `gz topic`.
-- **Phase 1 (Bridge Implementation)**:
-  - Created `simulation/launch/bridge.launch.py` to launch `ros_gz_bridge`.
-  - Successfully bridged `/cmd_vel` (ROS->GZ), `/odom` (GZ->ROS), `/model/amr1/tf` (GZ->ROS as `/tf`), and `/clock` (GZ->ROS).
-  - Verified end-to-end command path from ROS 2 `/cmd_vel` -> Gazebo -> ROS 2 `/odom`.
-- **Phase 1 (Three-AMR Simulation Foundation)**:
-  - Parameterized `simulation/urdf/gz.xacro` to support unique `robot_namespace` parameters.
-  - Developed `simulation/launch/bringup.launch.py` to synchronously spawn `amr1`, `amr2`, and `amr3`.
-  - Configured `ros_gz_bridge` to bridge and remap isolated namespaces (`/amr1/cmd_vel`, `/amr1/odom`, `/amr1/tf`).
-  - Human testing confirmed complete namespace, command, and odometry isolation for the 3-robot cluster.
-  
-## Phase 2: Zenoh P2P + Heartbeat
+### Phase 11: Safety Shield
+- [ ] Create `fleex_safety` package.
+- [ ] Implement software protective field scanning from LiDAR.
+- [ ] Implement velocity override to forcefully stop Nav2.
 
-- [x] Create ROS 2 workspace structure.
-- [x] Create `fleex_msgs` and define `Heartbeat.msg`.
-- [x] Create `fleex_communication`.
-- [x] Create `fleex_coordination`.
-- [ ] Create `fleex_edge_ai`.
-- [x] Create `fleex_navigation`.
-- [ ] Create `fleex_safety`.
-- [x] Verify clean `colcon build` for `fleex_msgs`.
+### Phase 12: VDA 5050 / Central Server Integration
+- [ ] Wrap the `TaskGenerator` in a thin FastAPI/VDA 5050 bridge.
+- [ ] Test system behavior during simulated WMS network failure.
+
+### Phase 16: MVP Integration
+- [ ] Complete end-to-end WMS -> Edge AI -> Nav2 -> Zone Reservation -> Task Recovery demonstration.
+- [ ] Finalize documentation for repository pushing.
+- [ ] Record video and prepare PPT.

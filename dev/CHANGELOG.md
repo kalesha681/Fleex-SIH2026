@@ -125,3 +125,19 @@
   - Added dedicated AMR-3 displays (RobotModel, LaserScan, PointCloud, Costmaps, Plans) and assigned visually distinct colors (Green for AMR1, Orange for AMR2, Blue for AMR3).
   - Deferred the FLEEX Status Panel since `fleex_msgs/msg/Task` cannot natively render in RViz without a custom C++ plugin.
   - Added `rviz.launch.py` to `fleex_navigation` for easy 1-command visualization startup.
+
+- **Phase 8.7 (Offset Math & Fleet Load Balancing)**:
+  - Developed automated Python tools to parse 3D `.DAE` meshes to mathematically derive bounding box dimensions.
+  - Redefined `locations.yaml` navigation goals to respect 0.6m safety clearance from static shelves, eliminating `status 6` collisions against inflation layers.
+  - Implemented Workload Penalty in `fleex_task_bidder.py`, adding +1000.0 penalty for active tasks, achieving autonomous fleet load balancing.
+  - Implemented Task Queue in `fleex_task_executor.py` so robots successfully sequence simultaneously assigned tasks.
+  - Human runtime verification proved multiple tasks fired concurrently distribute successfully across the fleet.
+
+- **Phase 9 (Minimal Zone Reservation / Chokepoint Coordination)**:
+  - Designed MVP Central Chokepoint (`choke_01`) at `(x=0, y=0)` with 2.0m radius, covering the primary warehouse crossing corridor.
+  - Implemented `ZoneManager` node to manage requests (`RequestZone.srv`), releases (`ReleaseZone.srv`), TTL expiration, and publish `ZoneState.msg`.
+  - Integrated `zone_manager` into `fleet_coordination.launch.py`.
+  - Rewrote `TaskExecutor` to perform mathematical circle-line intersection testing against the chokepoint boundaries before ever requesting a Nav2 goal.
+  - Updated `TaskExecutor` to use an asynchronous retry timer for zone lease requests instead of thread-blocking.
+  - Human runtime verification proved the logic perfectly evaluates straight-line path intersection: one AMR is correctly denied a lease and waits safely, then successfully acquires the lease after expiration, and cleanly completes the task by requesting and releasing the lease dynamically per segment.
+  - Human runtime verification (Recovery Integration) proved that if a robot holding a zone lease aborts its navigation (due to Nav2 failure), it cleanly releases the lease and throws the task back to the distributed fleet for recovery (Phase 6 integration).

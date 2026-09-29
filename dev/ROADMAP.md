@@ -1061,23 +1061,23 @@ behavior rather than displaying a large number of disconnected features.
 ## MVP
 
 ```text
-Phase 0   Project Foundation          [IN PROGRESS]
-Phase 1   Simulation Foundation       [NOT STARTED]
-Phase 2   ROS 2 Packages              [NOT STARTED]
-Phase 3   Message Definitions         [NOT STARTED]
-Phase 4   Multi-Robot Simulation      [NOT STARTED]
-Phase 5   Zenoh + Heartbeat           [NOT STARTED]
-Phase 6   Task Generator              [NOT STARTED]
-Phase 7   Distributed Allocation      [IMPLEMENTING]
-Phase 8   Navigation                  [NOT STARTED]
-Phase 9   Multi-Robot Traffic         [NOT STARTED]
+Phase 0   Project Foundation          [COMPLETE]
+Phase 1   Simulation Foundation       [COMPLETE]
+Phase 2   ROS 2 Packages              [COMPLETE]
+Phase 3   Message Definitions         [COMPLETE]
+Phase 4   Multi-Robot Simulation      [COMPLETE]
+Phase 5   Zenoh + Heartbeat           [COMPLETE]
+Phase 6   Task Generator              [COMPLETE]
+Phase 7   Distributed Allocation      [COMPLETE]
+Phase 8   Navigation                  [COMPLETE]
+Phase 9   Multi-Robot Traffic / Chokepoint Coordination [COMPLETE]
 Phase 10  Basic ORCA                  [NOT STARTED]
-Phase 11  Basic Zone Reservation      [NOT STARTED]
-Phase 12  Basic Task Recovery         [NOT STARTED]
+Phase 11  Basic Zone Reservation      [COMPLETE (Integrated into Phase 9)]
+Phase 12  Basic Task Recovery         [COMPLETE (Integrated into Phase 7)]
 Phase 13  Central Server Failure      [NOT STARTED]
 Phase 14  LightGBM Edge AI            [NOT STARTED]
 Phase 15  Basic Safety Shield         [NOT STARTED]
-Phase 16  Full MVP Integration         [NOT STARTED]
+Phase 16  Full MVP Integration        [NOT STARTED]
 ```
 
 ## Post-MVP

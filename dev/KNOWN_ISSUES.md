@@ -23,42 +23,15 @@ Do not turn speculative concerns into confirmed issues.
 
 The existing warehouse world and AMR have been identified, and the simulation foundation (including ROS 2 Jazzy, Gazebo Harmonic, and `ros_gz_bridge`) has been fully verified and bridged in this session.
 
-Required verification:
-
-- ROS 2 Jazzy starts correctly.
-- Gazebo Harmonic starts correctly.
-- `simulation/worlds/large_warehouse.world` loads.
-- `simulation/urdf/amr1.xacro` spawns.
-- `amr1` is visible.
-- TF works.
-- Odometry works.
-- LiDAR works when enabled.
-- `/cmd_vel` works.
-- The robot responds to velocity commands.
-
-This is tracked as a blocker in:
-
-```text
-dev/BLOCKERS.md
-```
-
 ---
 
 ### KI-002 — Existing AMR sensor configuration may require enabling
 
-**Status:** TO VERIFY
+**Status:** FIXED
 
 **Impact:** Medium
 
-The AMR model contains configurable sensor components. Some sensors, including the 2D LiDAR, may be disabled by default.
-
-Do not assume a sensor is broken before checking the Xacro configuration and launch/spawn parameters.
-
-Relevant file:
-
-```text
-simulation/urdf/amr1.xacro
-```
+The AMR model's 2D LiDAR was disabled by default but has been fully enabled and bridged via `bringup.launch.py`.
 
 ---
 
@@ -68,11 +41,7 @@ simulation/urdf/amr1.xacro
 
 **Impact:** High for real-world deployment, not an MVP simulation blocker
 
-The MVP software safety shield is intended for simulation and architecture demonstration.
-
-It must not be described as a certified industrial safety system.
-
-The eventual real-hardware safety architecture requires an appropriate certified safety scanner/controller and hardware safety chain.
+The MVP software safety shield is intended for simulation and architecture demonstration. It must not be described as a certified industrial safety system. The eventual real-hardware safety architecture requires an appropriate certified safety scanner/controller and hardware safety chain.
 
 ---
 
@@ -82,17 +51,19 @@ The eventual real-hardware safety architecture requires an appropriate certified
 
 **Impact:** None for MVP
 
-The following are intentionally outside the first MVP:
+The current MVP implements and verifies the following distributed behaviors:
+- Distributed task ownership and Contract-Net auction recovery.
+- Minimal chokepoint reservation via `ZoneManager`.
+- TTL-based zone lease recovery.
+- Deterministic heartbeat-aware task zombie resolution.
 
-- Advanced CRDT convergence mechanisms
-- Atomic multi-zone lease protocol
-- Epoch/CAS lease semantics
-- Partition reconciliation
-- Large-scale evaluation
-- Baseline implementations
-- Full ablation studies
-
-These are post-MVP/evaluation work.
+However, the following advanced distributed protocols are intentionally outside the first MVP and are deferred to post-MVP/evaluation work:
+- Advanced CRDT convergence mechanisms.
+- Atomic multi-zone lease protocol.
+- True partition reconciliation.
+- Advanced lease epochs/CAS semantics.
+- Large-scale evaluation and baseline comparison.
+- Full ablation studies.
 
 ---
 
