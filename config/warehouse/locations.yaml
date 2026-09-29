@@ -1,42 +1,201 @@
 locations:
-  shelf_A_01:
-    model_id: "aws_robomaker_warehouse_ShelfF_01_001"
-    pose: {x: -5.795, y: -0.956, yaw: 0.0}
-    approach: {x: -4.145, y: -0.956, yaw: 3.14159}
-    frame: "map"
-
-  shelf_A_02:
-    model_id: "aws_robomaker_warehouse_ShelfE_01_001"
-    pose: {x: 4.731, y: 0.579, yaw: 0.0}
-    approach: {x: 2.172, y: 0.579, yaw: 0.0}
-    frame: "map"
-
-  shelf_B_01:
-    model_id: "aws_robomaker_warehouse_ShelfD_01_001"
-    pose: {x: 4.731, y: -1.242, yaw: 0.0}
-    approach: {x: 2.172, y: -1.242, yaw: 0.0}
-    frame: "map"
-
   charging_station:
-    model_id: "open_space_charge"
+    model_id: open_space_charge
     pose: {x: 0.0, y: 0.0, yaw: 0.0}
     approach: {x: 0.0, y: 0.0, yaw: 0.0}
-    frame: "map"
-
+    frame: map
   station_01:
-    model_id: "open_space_station1"
+    model_id: open_space_station1
     pose: {x: 1.0, y: 3.0, yaw: 0.0}
     approach: {x: 1.0, y: 3.0, yaw: 0.0}
-    frame: "map"
-
+    frame: map
   station_02:
-    model_id: "open_space_station2"
+    model_id: open_space_station2
     pose: {x: -4.0, y: 5.0, yaw: 0.0}
     approach: {x: -4.0, y: 5.0, yaw: 3.14159}
-    frame: "map"
-
+    frame: map
   packing_area:
-    model_id: "open_space_packing"
+    model_id: open_space_packing
     pose: {x: 0.0, y: -4.0, yaw: 0.0}
     approach: {x: 0.0, y: -4.0, yaw: 1.5708}
-    frame: "map"
+    frame: map
+  shelff_01_001:
+    model_id: aws_robomaker_warehouse_ShelfF_01_001
+    pose: {x: -5.795, y: -0.957, yaw: 0.0}
+    approach: {x: -4.145, y: -0.957, yaw: 3.14159}
+    frame: map
+  shelfe_01_001:
+    model_id: aws_robomaker_warehouse_ShelfE_01_001
+    pose: {x: 4.732, y: 0.579, yaw: 0.0}
+    approach: {x: 2.173, y: 0.579, yaw: 0.0}
+    frame: map
+  shelfe_01_002:
+    model_id: aws_robomaker_warehouse_ShelfE_01_002
+    pose: {x: 4.732, y: -4.827, yaw: 0.0}
+    approach: {x: 2.173, y: -4.827, yaw: 0.0}
+    frame: map
+  shelfe_01_003:
+    model_id: aws_robomaker_warehouse_ShelfE_01_003
+    pose: {x: 4.732, y: -8.665, yaw: 0.0}
+    approach: {x: 2.173, y: -8.665, yaw: 0.0}
+    frame: map
+  shelfd_01_001:
+    model_id: aws_robomaker_warehouse_ShelfD_01_001
+    pose: {x: 4.732, y: -1.243, yaw: 0.0}
+    approach: {x: 2.173, y: -1.243, yaw: 0.0}
+    frame: map
+  shelfd_01_002:
+    model_id: aws_robomaker_warehouse_ShelfD_01_002
+    pose: {x: 4.732, y: -3.039, yaw: 0.0}
+    approach: {x: 2.173, y: -3.039, yaw: 0.0}
+    frame: map
+  shelfd_01_003:
+    model_id: aws_robomaker_warehouse_ShelfD_01_003
+    pose: {x: 4.732, y: -6.751, yaw: 0.0}
+    approach: {x: 2.173, y: -6.751, yaw: 0.0}
+    frame: map
+  shelfd_01:
+    model_id: aws_robomaker_warehouse_ShelfD_01
+    pose: {x: 5.9, y: 47.615, yaw: 0.0}
+    approach: {x: 3.341, y: 47.615, yaw: 0.0}
+    frame: map
+  shelfd_01_0:
+    model_id: aws_robomaker_warehouse_ShelfD_01_0
+    pose: {x: 5.053, y: 29.984, yaw: 0.0}
+    approach: {x: 2.494, y: 29.984, yaw: 0.0}
+    frame: map
+  shelfe_01:
+    model_id: aws_robomaker_warehouse_ShelfE_01
+    pose: {x: 5.468, y: 37.971, yaw: 0.0}
+    approach: {x: 2.909, y: 37.971, yaw: 0.0}
+    frame: map
+  shelff_01:
+    model_id: aws_robomaker_warehouse_ShelfF_01
+    pose: {x: -5.851, y: 19.986, yaw: 0.0}
+    approach: {x: -4.201, y: 19.986, yaw: 3.14159}
+    frame: map
+  shelff_01_0:
+    model_id: aws_robomaker_warehouse_ShelfF_01_0
+    pose: {x: -5.539, y: 41.573, yaw: 0.0}
+    approach: {x: -3.889, y: 41.573, yaw: 3.14159}
+    frame: map
+  shelfe_01_0:
+    model_id: aws_robomaker_warehouse_ShelfE_01_0
+    pose: {x: -0.818, y: 14.103, yaw: 0.0}
+    approach: {x: -3.377, y: 14.103, yaw: 0.0}
+    frame: map
+  shelfd_01_1:
+    model_id: aws_robomaker_warehouse_ShelfD_01_1
+    pose: {x: -0.852, y: 18.339, yaw: 0.0}
+    approach: {x: -3.411, y: 18.339, yaw: 0.0}
+    frame: map
+  shelfe_01_1:
+    model_id: aws_robomaker_warehouse_ShelfE_01_1
+    pose: {x: 4.687, y: 22.065, yaw: 0.0}
+    approach: {x: 2.128, y: 22.065, yaw: 0.0}
+    frame: map
+  shelfe_01_2:
+    model_id: aws_robomaker_warehouse_ShelfE_01_2
+    pose: {x: 5.104, y: 44.474, yaw: 0.0}
+    approach: {x: 2.545, y: 44.474, yaw: 0.0}
+    frame: map
+  shelfe_01_3:
+    model_id: aws_robomaker_warehouse_ShelfE_01_3
+    pose: {x: -0.828, y: 49.413, yaw: 0.0}
+    approach: {x: -3.387, y: 49.413, yaw: 0.0}
+    frame: map
+  shelfd_01_2:
+    model_id: aws_robomaker_warehouse_ShelfD_01_2
+    pose: {x: 12.15, y: 19.89, yaw: 0.0}
+    approach: {x: 9.591, y: 19.89, yaw: 0.0}
+    frame: map
+  shelfe_01_4:
+    model_id: aws_robomaker_warehouse_ShelfE_01_4
+    pose: {x: 12.845, y: 17.151, yaw: 0.0}
+    approach: {x: 10.286, y: 17.151, yaw: 0.0}
+    frame: map
+  shelfe_01_5:
+    model_id: aws_robomaker_warehouse_ShelfE_01_5
+    pose: {x: 12.719, y: 21.365, yaw: 0.0}
+    approach: {x: 10.16, y: 21.365, yaw: 0.0}
+    frame: map
+  shelfd_01_3:
+    model_id: aws_robomaker_warehouse_ShelfD_01_3
+    pose: {x: 12.29, y: 46.671, yaw: 0.0}
+    approach: {x: 9.731, y: 46.671, yaw: 0.0}
+    frame: map
+  shelfd_01_4:
+    model_id: aws_robomaker_warehouse_ShelfD_01_4
+    pose: {x: 13.333, y: -1.352, yaw: 0.0}
+    approach: {x: 10.774, y: -1.352, yaw: 0.0}
+    frame: map
+  shelfe_01_6:
+    model_id: aws_robomaker_warehouse_ShelfE_01_6
+    pose: {x: 13.229, y: -4.691, yaw: 0.0}
+    approach: {x: 10.67, y: -4.691, yaw: 0.0}
+    frame: map
+  shelfd_01_5:
+    model_id: aws_robomaker_warehouse_ShelfD_01_5
+    pose: {x: 17.841, y: 20.599, yaw: 0.0}
+    approach: {x: 15.282, y: 20.599, yaw: 0.0}
+    frame: map
+  shelfe_01_7:
+    model_id: aws_robomaker_warehouse_ShelfE_01_7
+    pose: {x: 17.484, y: 18.154, yaw: 0.0}
+    approach: {x: 14.925, y: 18.154, yaw: 0.0}
+    frame: map
+  shelfd_01_6:
+    model_id: aws_robomaker_warehouse_ShelfD_01_6
+    pose: {x: 18.148, y: 14.829, yaw: 0.0}
+    approach: {x: 15.589, y: 14.829, yaw: 0.0}
+    frame: map
+  shelff_01_1:
+    model_id: aws_robomaker_warehouse_ShelfF_01_1
+    pose: {x: 33.485, y: 42.901, yaw: 0.0}
+    approach: {x: 35.135, y: 42.901, yaw: 3.14159}
+    frame: map
+  shelff_01_2:
+    model_id: aws_robomaker_warehouse_ShelfF_01_2
+    pose: {x: 32.87, y: 23.235, yaw: 0.0}
+    approach: {x: 34.52, y: 23.235, yaw: 3.14159}
+    frame: map
+  shelff_01_3:
+    model_id: aws_robomaker_warehouse_ShelfF_01_3
+    pose: {x: 32.996, y: 1.122, yaw: 0.0}
+    approach: {x: 34.646, y: 1.122, yaw: 3.14159}
+    frame: map
+  shelfd_01_7:
+    model_id: aws_robomaker_warehouse_ShelfD_01_7
+    pose: {x: 25.777, y: 38.693, yaw: 0.0}
+    approach: {x: 23.218, y: 38.693, yaw: 0.0}
+    frame: map
+  shelfd_01_8:
+    model_id: aws_robomaker_warehouse_ShelfD_01_8
+    pose: {x: 26.244, y: 36.703, yaw: 0.0}
+    approach: {x: 23.684, y: 36.703, yaw: 0.0}
+    frame: map
+  shelfe_01_8:
+    model_id: aws_robomaker_warehouse_ShelfE_01_8
+    pose: {x: 26.033, y: 34.365, yaw: 0.0}
+    approach: {x: 23.474, y: 34.365, yaw: 0.0}
+    frame: map
+  shelfe_01_9:
+    model_id: aws_robomaker_warehouse_ShelfE_01_9
+    pose: {x: 26.619, y: 9.962, yaw: 0.0}
+    approach: {x: 24.06, y: 9.962, yaw: 0.0}
+    frame: map
+  shelfe_01_10:
+    model_id: aws_robomaker_warehouse_ShelfE_01_10
+    pose: {x: 26.863, y: 6.912, yaw: 0.0}
+    approach: {x: 24.304, y: 6.912, yaw: 0.0}
+    frame: map
+  shelfe_01_11:
+    model_id: aws_robomaker_warehouse_ShelfE_01_11
+    pose: {x: 27.166, y: 4.118, yaw: 0.0}
+    approach: {x: 24.607, y: 4.118, yaw: 0.0}
+    frame: map
+  shelfd_01_9:
+    model_id: aws_robomaker_warehouse_ShelfD_01_9
+    pose: {x: 26.977, y: 1.184, yaw: 0.0}
+    approach: {x: 24.418, y: 1.184, yaw: 0.0}
+    frame: map

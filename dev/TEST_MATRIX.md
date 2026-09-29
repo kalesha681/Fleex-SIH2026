@@ -21,4 +21,6 @@
 | Navigation (Phase 8.1) | Nav2 Foundation | `ros2 launch fleex_navigation navigation.launch.py namespace:=amr1` | Nav2 initializes with SMAC 2D and RPP | **PASS** | Successfully verified by human |
 | Navigation (Phase 8.2) | Multi-Robot Nav2 | `ros2 action send_goal /amrX/...` simultaneously | All 3 AMRs navigate without TF conflicts | **PASS** | Successfully verified by human |
 | Task Integration (Phase 8.5) | Physical Task Execution | WMS generates task -> Node bids/wins -> Drives to Pickup -> Drives to Dropoff -> COMPLETED | Task transitions natively based on physical completion | **PASS** | Successfully verified by human |
-| Visualization (Phase 8.6) | RViz Fleet Configuration | `ros2 launch fleex_navigation rviz.launch.py` | RViz loads Map, TF, and 3 distinct AMR displays without clutter | **PENDING** | Requires human verification |
+| Visualization (Phase 8.6) | RViz Fleet Configuration | `ros2 launch fleex_navigation rviz.launch.py` | RViz loads Map, TF, and 3 distinct AMR displays without clutter | **PASS** | Successfully verified by human |
+| Zone Management (Phase 9) | Lease Request & Grant | Simulation: send cross-zone task to one robot | Robot stops before center corridor, requests zone, gets lease, crosses. | **PASS** | Successfully verified by human |
+| Zone Management (Phase 9) | Lease Exclusion | Simulation: send cross-zone task to two robots | Robot 1 gets lease. Robot 2 waits safely outside until Robot 1 finishes crossing. | **PASS** | Successfully verified by human |

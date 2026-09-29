@@ -1,37 +1,31 @@
-# HANDOFF
+# CURRENT STATUS
 
-## What Was Completed
+## What was completed
+- **Phase 9 (Zone Reservation/Chokepoint Coordination) is successfully COMPLETE and VERIFIED!**
+- Verified that robots correctly intersect their mathematical paths with `choke_01` and request leases.
+- Verified that `ZoneManager` properly denies leases if the zone is occupied.
+- Verified that waiting robots safely pause their execution timelines and do not invoke Nav2 until granted the lease.
+- Verified that expired leases (due to stuck robots) are successfully reclaimed by `ZoneManager` and passed to waiting peers.
+- Verified that Nav2 failures (e.g. `status 6` / Aborted) correctly trigger Phase 6 Task Recovery, pushing the task back to the distributed fleet and releasing any held leases.
+- Found and fixed a duplicate method bug in `task_executor.py` that was suppressing Nav2 execution after lease acquisition.
 
-- Added `AGENTS.md` to `.gitignore`.
-- Extracted exact 3D bounding boxes from Gazebo COLLADA meshes to compute mathematically precise approach offsets (0.6m from face) for all shelves in `locations.yaml`.
-- Fixed `station_01` pose, which was previously trapped inside a closed square of static pallets.
-- Discovered and fixed a distributed race condition where `fleex_task_executor` dropped assigned tasks if it was already busy. Implemented a Task Queue.
-- Implemented Workload Penalty in `fleex_task_bidder` (adding +1000 per active task) to force autonomous load balancing across the fleet.
+## What is currently being worked on
+- Moving towards MVP completion.
+- Remaining major MVP phases:
+  - Phase 10: Edge AI / LightGBM (Edge Inference for traffic/traversal prediction).
+  - Phase 11: Safety Shield (Velocity Override).
+  - Phase 12: VDA 5050 / Central Server integration.
 
-## What Is Currently Being Worked On
+## Last successful test
+- Cross-zone contention simulation (`test_zone_1` and `test_zone_2`). `amr2` safely aborted, `amr1` waited, acquired lease, navigated successfully through the zone, delivered the payload, and completed the task.
 
-- Phase 9: Multi-Robot Traffic and Contention Resolution.
+## Last failed test
+- N/A
 
-## Last Successful Test
+## Files changed
+- `src/fleex_coordination/fleex_coordination/task_executor.py` (Fixed duplicate `zone_request_response_callback`)
+- `dev/CURRENT_STATE.md`
+- `dev/TEST_MATRIX.md`
 
-- `test_4` (station_01 -> packing_area) executed cleanly by AMR1.
-
-## Last Failed Test
-
-- `test_12` (packing_area -> shelf_A_02) aborted with Nav2 `status 6` for AMR2. AMR2 crashed into the parked physical bodies of AMR1 and AMR3 because standard Nav2 cannot resolve fleet-level dynamic blockages.
-
-## Current Error
-
-- Fleet collisions require protocol-level zone management or ORCA.
-
-## Files Changed (This Session)
-
-- `config/warehouse/locations.yaml` - Standardized and corrected all navigation poses.
-- `src/fleex_coordination/fleex_coordination/task_bidder.py` - Added workload penalty to bid calculation.
-- `src/fleex_coordination/fleex_coordination/task_executor.py` - Added task execution queueing.
-- `.gitignore` - Added AI customizations.
-
-## Next Exact Action
-
-1. Implement `ZoneManager` (CRDT-based zone leases) to lock down chokepoints.
-2. Ensure robots wait at a safe distance before entering a zone occupied by a peer.
+## Next exact action
+- Review `dev/ROADMAP.md` and initiate **Phase 10: Edge AI (LightGBM)** or whatever the human prioritizes next for the MVP.

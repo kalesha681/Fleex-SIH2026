@@ -96,3 +96,15 @@
 - Implemented **Workload Penalty** in `fleex_task_bidder.py`. Bidders now add a massive `+1000.0` penalty for each currently owned active task, shifting the system from naive deterministic hashing to intelligent, autonomous fleet load balancing.
 - Implemented a **Task Queue** in `fleex_task_executor.py` so a robot successfully sequences simultaneously assigned tasks instead of discarding them.
 - **Human-in-the-loop runtime verified** that multiple tasks fired concurrently distribute successfully across the fleet. This surface-tested the limits of basic Nav2 and uncovered physical traffic contention (robots parking on top of each other's global paths), directly gating the entrance to Phase 9.
+
+## Phase 9 Status: Minimal Zone Reservation / Chokepoint Coordination (COMPLETE & RUNTIME VERIFIED)
+
+### Phase 9 Completed
+- Designed MVP Central Chokepoint (`choke_01`) at `(x=0, y=0)` with 2.0m radius, covering the primary warehouse crossing corridor.
+- Implemented `ZoneManager` node to manage requests (`RequestZone.srv`), releases (`ReleaseZone.srv`), TTL expiration, and publish `ZoneState.msg`.
+- Integrated `zone_manager` into `fleet_coordination.launch.py`.
+- Rewrote `TaskExecutor` to perform mathematical circle-line intersection testing against the chokepoint boundaries before ever requesting a Nav2 goal.
+- Updated `TaskExecutor` to use an asynchronous retry timer for zone lease requests instead of thread-blocking or task-abandonment.
+- Validated Python syntax and successfully built package `fleex_coordination`.
+- **Human-in-the-loop runtime verified** that the logic perfectly evaluates straight-line path intersection. `amr1` was correctly denied a lease and waited safely. After lease expiration, `amr1` gained the lease, completed the navigation through the corridor, requested the lease again for its drop-off route, and successfully completed the task.
+- **Human-in-the-loop runtime verified (Recovery Integration)**: `amr2` gained the lease first but its local Nav2 aborted path planning (due to costmap geometry). `amr2` successfully aborted execution, explicitly threw the task back to the distributed fleet for recovery (Phase 6), and cleanly released its zone lease, proving the full resilience of the FLEEX architecture!

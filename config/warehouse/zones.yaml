@@ -1,0 +1,6 @@
+zones:
+  choke_01:
+    type: chokepoint
+    center: {x: 0.0, y: 0.0}
+    entry_distance: 2.0
+    exit_distance: 2.5

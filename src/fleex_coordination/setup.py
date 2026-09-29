@@ -29,7 +29,8 @@ setup(
         'console_scripts': [
             'fleex_task_generator = fleex_coordination.task_generator:main',
             'fleex_task_bidder = fleex_coordination.task_bidder:main',
-            'fleex_task_executor = fleex_coordination.task_executor:main'
+            'fleex_task_executor = fleex_coordination.task_executor:main',
+            'fleex_zone_manager = fleex_coordination.zone_manager:main'
         ],
     },
 )

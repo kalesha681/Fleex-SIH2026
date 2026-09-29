@@ -18,6 +18,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ZoneState.msg"
   "msg/Lease.msg"
   "srv/RequestZone.srv"
+  "srv/ReleaseZone.srv"
   "srv/AssignTask.srv"
   DEPENDENCIES builtin_interfaces
 )

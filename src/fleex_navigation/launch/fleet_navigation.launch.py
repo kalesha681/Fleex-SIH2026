@@ -42,6 +42,9 @@ def generate_launch_description():
     
     nodes.extend([global_map_server, global_lifecycle_manager, tf_relay_node])
     
+    rviz_launch_file = os.path.join(pkg_nav, 'launch', 'rviz.launch.py')
+    nodes.append(IncludeLaunchDescription(PythonLaunchDescriptionSource(rviz_launch_file)))
+    
     for amr in ['amr1', 'amr2', 'amr3']:
         nodes.append(GroupAction([
             IncludeLaunchDescription(
