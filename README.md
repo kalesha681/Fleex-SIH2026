@@ -239,7 +239,7 @@ All 40+ semantic locations are defined in [`config/warehouse/locations.yaml`](co
 | Footprint | 0.9 m × 0.64 m |
 | Sensors | 2D GPU LiDAR (360°, bridged to ROS 2 `sensor_msgs/LaserScan`) |
 | Fleet Size | 3 AMRs (`amr1`, `amr2`, `amr3`) |
-| Spawn Positions | `(0, 0)`, `(0, 2)`, `(0, −2)` in map frame |
+| Spawn Positions | `(1.0, 3.0)`, `(-4.145, -0.957)`, `(2.173, -4.827)` (Aligned to Task Pickups) |
 
 ### 5.2 Software Configuration
 
@@ -309,7 +309,7 @@ The following capabilities are defined in the project roadmap but are **not impl
 | LightGBM edge inference | Not implemented | Requires offline training dataset from simulation logs; planned for congestion delay prediction |
 | Independent software safety shield | Not implemented | Requires dedicated LiDAR processing node with velocity override authority |
 | Central-server failure demonstration | Not implemented | Architecture supports it (fleet operates P2P); formal demo scenario not yet authored |
-| Reproducible complete MVP demonstration | Implemented, not verified | Demo scripts authored (`scripts/demo/`); awaiting human runtime verification |
+| Reproducible complete MVP demonstration | Implemented & Verified | Successfully demonstrated via `scripts/demo/` with zero task overlaps |
 
 ---
 
@@ -362,7 +362,7 @@ A complete operator guide is provided in [`scripts/demo/README.md`](scripts/demo
 
 ```bash
 # Terminal 1 — Simulation
-ros2 launch simulation bringup.launch.py
+ros2 launch simulation/launch/bringup.launch.py
 
 # Terminal 2 — Visualization
 ros2 launch fleex_navigation rviz.launch.py
@@ -413,7 +413,19 @@ sih_fleex_workspace/
 
 ---
 
-## 10. Conclusion
+## 10. Presentation & Media Assets
+
+For the Smart India Hackathon 2026 presentation, all supporting artifacts are maintained in the `docs/` directory:
+
+- **SIH Pitch Deck & Presentations**: [`docs/presentations/`](docs/presentations/)
+- **Simulation Recordings & Demos**: [`docs/media/`](docs/media/)
+- **Research References & Citations**: [`docs/references/`](docs/references/)
+
+*(Note: Ensure presentation assets are placed in their respective folders before final submission.)*
+
+---
+
+## 11. Conclusion
 
 This work presents FLEEX, a decentralized fleet coordination framework for warehouse AMRs that eliminates the single-point-of-failure inherent in centralized fleet management architectures. Through a combination of Zenoh peer-to-peer communication, distributed Contract-Net auctions, epoch-based CRDT ownership resolution, heartbeat failure detection, and zone-lease chokepoint coordination, FLEEX enables three AMRs to autonomously allocate tasks, navigate a realistic warehouse environment, coordinate access to narrow corridors, and recover from robot failures — all without a continuously available central coordinator.
 

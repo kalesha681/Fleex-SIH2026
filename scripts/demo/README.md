@@ -28,7 +28,7 @@ source env.sh
 
 ```bash
 # Load Gazebo and spawn 3 AMRs
-ros2 launch simulation bringup.launch.py
+ros2 launch simulation/launch/bringup.launch.py
 ```
 
 ### Terminal 2: RViz Visualization

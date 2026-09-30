@@ -5,9 +5,9 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     robots = [
-        {'name': 'amr1', 'x': '0.0', 'y': '0.0'},
-        {'name': 'amr2', 'x': '0.0', 'y': '2.0'},
-        {'name': 'amr3', 'x': '0.0', 'y': '-2.0'},
+        {'name': 'amr1', 'x': '1.0', 'y': '3.0'},
+        {'name': 'amr2', 'x': '-4.145', 'y': '-0.957'},
+        {'name': 'amr3', 'x': '2.173', 'y': '-4.827'},
     ]
 
     nodes = []

@@ -206,11 +206,11 @@ class TaskExecutor(Node):
         # Get start coordinates
         if self.current_location is None:
             if self.robot_id == 'amr2':
-                start_x, start_y = 0.0, 2.0
+                start_x, start_y = -4.145, -0.957
             elif self.robot_id == 'amr3':
-                start_x, start_y = 0.0, -2.0
+                start_x, start_y = 2.173, -4.827
             else:
-                start_x, start_y = 0.0, 0.0
+                start_x, start_y = 1.0, 3.0
         else:
             start_loc = self.location_registry.get(self.current_location)
             start_x = float(start_loc['approach']['x'])
@@ -227,7 +227,7 @@ class TaskExecutor(Node):
             self.zone_retry_timer = self.create_timer(1.0, self.try_acquire_zone)
             self.try_acquire_zone() # fire immediately
         else:
-            self.get_logger().debug(f'[TASK_EXEC] No chokepoint crossing needed (current set: {self.current_set}, goal set: {goal_set})')
+            self.get_logger().debug(f'[TASK_EXEC] No chokepoint crossing needed.')
             self.execute_nav_goal()
             
     def try_acquire_zone(self):
